@@ -1,0 +1,21 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+
+# Local machine configuration. Never commit: contains the SDK path and is the
+# designated home for any future secrets per AGENT.md rule 5.
+local.properties
+
+# Keystores must never enter source control.
+*.jks
+*.keystore
+
+# OS noise
+.DS_Store
+Thumbs.db

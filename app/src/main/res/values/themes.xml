@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Minimal platform theme. All real theming happens in Compose
+         (MaterialTheme); this only styles the window before Compose attaches. -->
+    <style name="Theme.SmsExpenseTracker" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

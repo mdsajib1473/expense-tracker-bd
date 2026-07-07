@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder launcher foreground: a simple white "taka" style circle.
+     Replace with real branding before any public release. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,34a20,20 0 1,0 0.001,0Zm0,6a14,14 0 1,1 -0.001,0Z" />
+</vector>
