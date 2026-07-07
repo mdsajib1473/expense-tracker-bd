@@ -20,6 +20,14 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform 37 and build tools
+        # Pin the exact SDK packages the local build uses so CI compiles against
+        # the same API level. Package names are minor-versioned since API 36.
+        run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
