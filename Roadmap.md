@@ -10,6 +10,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ---
 
+
 ## Milestones
 
 ### M0 — Skeleton & Tooling
@@ -224,6 +225,7 @@ These will not be built unless the product direction changes:
 | Are there GDPR/PDPA implications for Bangladeshi users? | Legal review before M8 (cloud sync) |
 
 ---
+
 
 ## Tech Debt Log
 
