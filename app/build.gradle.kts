@@ -36,6 +36,14 @@ android {
         compose = true
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged Android manifest and resources to
+            // build its simulated application context.
+            isIncludeAndroidResources = true
+        }
+    }
+
     lint {
         // These three checks are time-relative: they hit the network and warn
         // whenever any newer release exists, so a build that is clean today
@@ -49,6 +57,13 @@ android {
             "AndroidGradlePluginVersion"
         )
     }
+}
+
+// AppDatabase sets exportSchema = true, so Room writes each schema version's
+// JSON here. These files are committed and become the ground truth that
+// future explicit migrations are validated against (AGENT.md Hard Constraint 5).
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -76,6 +91,10 @@ dependencies {
     // Async.
     implementation(libs.coroutines.android)
 
-    // Unit testing.
+    // Unit testing. Robolectric provides the simulated Android runtime that
+    // the Room DAO tests run against without a device.
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.coroutines.test)
 }
