@@ -5,6 +5,7 @@
          (ui/common/SmsPermissionRationaleDialog) per AGENT.md Hard Constraint 2.
          READ_SMS arrives with the historical import job, a later M1 step. -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
 
     <!-- RECEIVE_SMS would otherwise imply a hard telephony requirement and
          block installation on telephony-less devices (lint
