@@ -10,12 +10,11 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ---
 
-
 ## Milestones
 
 ### M0 — Skeleton & Tooling
 **Goal:** Empty project builds, CI passes, team conventions in place.
-**Status:** In progress
+**Status:** Done
 
 | Task | Owner | Done? |
 |---|---|---|
@@ -26,14 +25,13 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 | Write `ParserEngine` with zero parsers registered (returns null always) | | |
 | Confirm `./gradlew test` passes on green-field project | | |
 
-**Exit criteria:** `./gradlew build` and `./gradlew test` both pass locally in Android Studio with no warnings suppressed. (Note: verification of Gradle builds happens on Sajib's machine; the assistant's sandbox has no Android SDK or Google Maven access.)
+**Exit criteria:** `./gradlew build` and `./gradlew test` both pass locally in Android Studio with no warnings suppressed for real code issues. Advisory version-check lint rules (`NewerVersionAvailable`, `GradleDependency`, `AndroidGradlePluginVersion`) are explicitly disabled via lint config, since they are time-relative and chasing them causes unnecessary breaking migrations, not quality improvements. (Note: verification of Gradle builds happens on Sajib's machine; the assistant's sandbox has no Android SDK or Google Maven access.)
 
 ---
 
 ### M1 — First Parser: bKash
 **Goal:** Parse real bKash SMS into `Transaction` records. This milestone proves the parser architecture end-to-end.
-**Status:** Not started
-**Note:** Real bKash/Nagad/Rocket SMS history is already available in Sajib's default Messages app; no separate collection step needed, samples will be copied out when this milestone starts.
+**Status:** Done
 
 | Task | Done? |
 |---|---|
@@ -52,7 +50,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ### M2 — Core Wallet Parsers
 **Goal:** Cover the three dominant mobile wallets: bKash (already done), Nagad, Rocket.
-**Status:** Not started
+**Status:** Blocked, no real data. Sajib confirmed he barely/never uses Nagad or Rocket personally, same situation as bKash Cash Out. No real SMS samples exist for either and none are expected soon. Not abandoned, just parked until real samples surface (a new SIM, a friend's export, or actual usage starting). Do not guess formats to unblock this.
 **Depends on:** M1
 
 | Parser | Sample types needed | Done? |
@@ -86,20 +84,24 @@ Features:
 
 ### M4 — Bank SMS Parsers
 **Goal:** Support major BD scheduled banks that send transaction alert SMS.
-**Status:** Not started
+**Status:** Ready to start for DBBL, real data confirmed. Blocked on Sonali Bank pending real transaction samples (only OTP/notification noise found so far).
 **Depends on:** M1 (parser architecture)
-**Priority order confirmed:** DBBL and Sonali Bank first, both are accounts Sajib personally holds and can generate real test SMS from.
+**Priority order confirmed:** DBBL first (real data now in hand), then Sonali Bank once real transaction SMS appears, then FSIBL (new real bank, real credit samples found, not previously known).
 
 | Parser | Supported alert types | Priority | Done? |
 |---|---|---|---|
-| `DutchBanglaParser` | Debit alert, credit alert, OD alert | 1st | |
-| `SonaliBankParser` | Debit alert, credit alert | 1st | |
-| `BracBankParser` | Debit, credit | 2nd | |
-| `IslamiBankParser` | Debit, credit | 2nd | |
-| `UcbParser` | Debit, credit | 2nd | |
-| `CityBankParser` | Debit, credit | 2nd | |
+| `DutchBanglaParser` | Balance inquiry, ATM-to-A/C transfer credit, NexusPay cash-out debit | 1st, real data confirmed | Yes (2026-09-02, unit tests green) |
+| `SonaliBankParser` | Debit alert, credit alert | 1st, blocked on real samples | |
+| `FsiblParser` | Deposit/credit alert | 2nd, real data confirmed | |
+| `BracBankParser` | Debit, credit | 3rd | |
+| `IslamiBankParser` | Debit, credit | 3rd | |
+| `UcbParser` | Debit, credit | 3rd | |
+| `CityBankParser` | Deposit/credit alert | 3rd, one real sample only, needs more before building | |
 
-> Sonali Bank is state-owned; SMS sender address and format are not yet confirmed on a real device, this needs to be verified before implementation starts (see AGENT.md SMS Sender Reference).
+> Real finding: sender `16216` is shared between DBBL bank account alerts (balance, ATM transfer, NexusPay cash-out) and, per AGENT.md's original reference table, was assumed to be Rocket's sender code. For this account, every `16216` message observed is a DBBL bank alert, not a Rocket wallet transaction. Sender-code-only matching is not reliable for `16216`; if a Rocket parser is ever built, it cannot safely claim this sender code without also checking message content (e.g. presence of "NexusPay" or "Rocket" wording) to avoid misclassifying real bank transactions as wallet transactions.
+> First Security Islami Bank (FSIBL) is a newly discovered real institution, not previously known. Real samples use "Muhtaram" greeting, deposit-only so far (no debit sample yet).
+> City Bank has one real deposit sample, multiline format (uses literal newlines in the SMS body), no TrxID visible in the sample seen. Needs more samples, including a debit, before building.
+> Sonali Bank is state-owned; real SMS seen so far are entirely OTP/notification noise (PIN changes, maintenance notices), no real transaction SMS yet.
 > Add rows as new banks are confirmed. Each parser requires real SMS samples before implementation begins.
 
 ---
@@ -219,13 +221,20 @@ These will not be built unless the product direction changes:
 
 | Question | Status |
 |---|---|
-| Play Store distribution: Google requires apps requesting READ_SMS/RECEIVE_SMS to be the user's default SMS, Phone, or Assistant handler, or to qualify for a narrow, case-by-case exception. Sideloaded APK distribution avoids this entirely. | Decision needed before M8-M9; does not block M0-M7 |
 | Which BD banks use shared short codes that could cause parser collisions? | Research needed before M4 |
 | Sonali Bank exact SMS sender address and message format | Needs verification on a real device before M4 implementation starts |
-| Are there GDPR/PDPA implications for Bangladeshi users? | Legal review before M8 (cloud sync) |
+| Are there GDPR/PDPA implications for Bangladeshi users? | Legal review before M8 (cloud sync), low priority given personal/direct-share distribution |
+
+## Decisions Log
+
+| Decision | Rationale |
+|---|---|
+| Distribution: sideload APK only, no Play Store | Personal use, no budget for the $25 Play Console fee, and it avoids Google's default-SMS-handler requirement for READ_SMS entirely. Sharing with others happens by handing them the APK directly. |
+| Play Protect / Vivo security warnings on install are expected, not a bug | An app requesting READ_SMS/RECEIVE_SMS from an unsigned/unknown source will very likely trigger a warning on Pixel (Play Protect) and Vivo (iManager) on every fresh sideload. This is normal for this permission combination and is dismissed with a manual "install anyway", not something to engineer around. |
+| Locked stable stack: whatever AGP/Gradle/Kotlin/compileSdk versions are green after the lint fix (M0 baseline) | Original stack (AGP 8.7.3, Kotlin 2.0.21, compileSdk 35) built and tested green on first try. Chasing "newer version available" lint warnings pulled in AGP 9.2.1, Gradle 9.6.1, compileSdk 37 and broke the build repeatedly for zero functional gain, since those specific lint checks are time-relative and never stay satisfied. Do not revert now that it is green; lock the current working versions in the version catalog and do not bump again without a deliberate, specific reason (a real dependency requiring it), not an advisory warning. |
+| bKash Cash Out likely sends no SMS at all (confirmed, not just missing sample) | A real Cash Out was performed and verified in the bKash app's own transaction history (TrxID DG8470M1WM). Searched both the default Messages app and Truecaller (which also indexes SMS) on the device, found nothing. A second person (roommate) reports the same experience. This is treated as a structural gap, not a "need a sample" backlog item: no SmsParser can ever catch a transaction type the network never sends as SMS. Cash Out stays unbuilt via the parser path. If the user wants Cash Out tracked at all, the only route is manual entry (M7), not a parser. Do not revisit this as an M2/M4 task unless new evidence (an actual Cash Out SMS) surfaces. |
 
 ---
-
 
 ## Tech Debt Log
 

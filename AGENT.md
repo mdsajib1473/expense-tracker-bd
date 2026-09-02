@@ -111,10 +111,12 @@ Use these patterns to route incoming SMS to the right parser. Expand as new inst
 | Institution | Sender address(es) | Notes |
 |---|---|---|
 | bKash | `bKash`, `01678600000` | Amount in BDT, TrxID present |
-| Nagad | `Nagad`, `16167` | "Tk" prefix for amounts |
-| Rocket (DBBL Mobile) | `Rocket`, `16216` | "BDT" suffix |
-| Dutch-Bangla Bank (DBBL) | `DBBL`, `DUTCHB` | Debit/credit alerts; priority bank, Sajib holds an account here |
-| Sonali Bank | `SonaliBank`, `SBL` *(verify exact sender on device)* | State-owned bank; SMS format not yet confirmed, may differ from private banks; priority bank, Sajib holds an account here |
+| Nagad | `Nagad`, `16167` | "Tk" prefix for amounts; no real samples exist yet, Sajib barely/never uses this wallet, do not build from guessed format |
+| Rocket (DBBL Mobile) | unconfirmed, do not assume `16216` | "BDT" suffix per general knowledge only; `16216` was assumed to be Rocket's code but real data shows it is DBBL's own bank-alert sender for this account (see DBBL row). No real Rocket wallet sample exists, Sajib barely/never uses this wallet. If a real Rocket sample ever appears, confirm its actual sender before trusting any assumed code |
+| Dutch-Bangla Bank (DBBL) | `16216` (confirmed via real data: balance inquiry, ATM-to-A/C transfer credit, NexusPay cash-out debit), `DUTCHB` | Priority bank, Sajib holds an account here, real samples confirmed |
+| Sonali Bank | `SonaliBank`, `SBL` *(verify exact sender on device)* | State-owned bank; real samples seen so far are OTP/notification only, no real transaction SMS yet; priority bank, Sajib holds an account here |
+| First Security Islami Bank (FSIBL) | `FSIBL` | Newly discovered via real data, not previously known; "Muhtaram" greeting, deposit-only real samples so far, no debit sample yet |
+| City Bank | `CITY BANK` | One real deposit sample only, multiline body (uses literal newlines), no TrxID visible; needs more samples including a debit before building |
 | BRAC Bank | `BRACB` | Verify sender on device |
 | Islami Bank | `IBBL`, `16259` | |
 | UCB | `UCB`, `16419` | |
