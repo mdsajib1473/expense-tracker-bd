@@ -32,12 +32,19 @@ These are non-negotiable. Never violate them.
 1. Never build beyond the current milestone. Complete and verify one phase against its Roadmap.md exit criteria before starting the next.
 2. Always respond in the same language typed during development conversations (Bangla in, Bangla out).
 3. Do not commit or push code. Sajib commits and pushes manually after testing. Ask first if a push seems necessary.
-4. Write clean, well-commented Kotlin code. Every public function and class gets a KDoc comment.
+4. Write clean, idiomatic Kotlin. Every public function and class gets a KDoc comment. Add no other comments unless the code is not self-explanatory (see rule 7).
 5. Follow secure coding practices: never expose secrets (API keys, Firebase config, keystore passwords) in source control or logs. Always validate and sanitize SMS content before parsing, since it is untrusted input arriving from outside the app. When Firebase sync (M8) is implemented, enforce Firestore security rules scoped strictly to the authenticated user's own data.
 6. Write scalable code for new work: keep business logic out of Composables and the UI layer (use the Repository and UseCase layers per the existing architecture), and never hardcode values that belong in `local.properties`, `BuildConfig`, or resource files.
 7. Do not over-comment. Only comment where the code is not self-explanatory.
 8. Log meaningful state changes for traceability, without violating Hard Constraint 1. Parser match events (institution name, timestamp, matched or not) may be logged; the raw SMS body itself must never appear in any log output, in debug or release builds.
 9. No emojis and no em dashes anywhere: code comments, markdown files, commit messages, and all UI copy. Use plain punctuation only.
+10. Real data never enters the repo. files/ is gitignored and must stay that way. Never commit real SMS bodies, phone numbers, account numbers, PINs or OTPs. All test fixtures and KDoc sample bodies use invented values only. Run git status before reporting any work as ready and confirm files/ is not listed.
+11. Play Store compliance. READ_SMS, RECEIVE_SMS and the SMS receiver exist only in the full flavor source set. The play flavor must declare no SMS permission and no INTERNET permission. After any manifest or dependency change, inspect the merged manifests of both flavors and report the permission lists.
+12. Never persist or log the body of a message that no parser recognizes. Unrecognized messages may contain OTPs or PINs. This applies to live receive, file import and share or paste intake.
+13. Money is BigDecimal only. Never use Double or Float for amounts or balances.
+14. Parsers are pure functions with no Android imports and no IO. Sender patterns, regexes and date formats are named constants at the top of the parser file, never inline literals.
+15. Every parser or feature ships with tests: one positive test per message template and one null test per known non-transaction message. Run the full suite and show the real output before calling a milestone done.
+16. Do not invent. If a needed TransactionType, sender ID or format is missing or ambiguous, stop and ask. List every assumption made in the final report.
 
 ---
 
