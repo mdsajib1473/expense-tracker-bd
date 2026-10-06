@@ -50,12 +50,12 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ### M2 — Core Wallet Parsers
 **Goal:** Cover the three dominant mobile wallets: bKash (already done), Nagad, Rocket.
-**Status:** Blocked, no real data. Sajib confirmed he barely/never uses Nagad or Rocket personally, same situation as bKash Cash Out. No real SMS samples exist for either and none are expected soon. Not abandoned, just parked until real samples surface (a new SIM, a friend's export, or actual usage starting). Do not guess formats to unblock this.
+**Status:** Nagad done, not device-verified (built from anonymized samples of a third-party real export, not Sajib's own phone). Rocket still blocked, no real data; do not guess its format to unblock this.
 **Depends on:** M1
 
 | Parser | Sample types needed | Done? |
 |---|---|---|
-| `NagadParser` | Send, receive, payment, cashout, add money | |
+| `NagadParser` | Cash In, Money Received, Payment (seen so far; send and cashout not yet seen) | Yes (2026-10-07, unit tests green, not device-verified) |
 | `RocketParser` | Send, receive, payment, cashout, DBBL-to-Rocket | |
 
 **Exit criteria:** On a device with mixed bKash/Nagad/Rocket SMS history, all three wallets appear as separate accounts in the transaction list with correct amounts.
@@ -93,7 +93,9 @@ Features:
 | `DutchBanglaParser` | Balance inquiry, ATM-to-A/C transfer credit, NexusPay cash-out debit | 1st, real data confirmed | Yes (2026-09-02, unit tests green) |
 | `SonaliBankParser` | Debit alert, credit alert | 1st, blocked on real samples | |
 | `FsiblParser` | Deposit/credit alert | 2nd, real data confirmed | |
-| `BracBankParser` | Debit, credit | 3rd | |
+| `BracBankParser` | Withdrawal, deposit, debit, credit, branch counter deposit and withdrawal, cheque clearing credit. Sender `BRAC BANK`; `BRACBANK` is notification only and rejected | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
+| `UttaraBankParser` | Debit, credit (balance may be negative) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
+| `PubaliBankParser` | Branch debit and credit, EFT credit, fund transfer credit ("Dr" balance stored negative) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
 | `IslamiBankParser` | Debit, credit | 3rd | |
 | `UcbParser` | Debit, credit | 3rd | |
 | `CityBankParser` | Deposit/credit alert | 3rd, one real sample only, needs more before building | |

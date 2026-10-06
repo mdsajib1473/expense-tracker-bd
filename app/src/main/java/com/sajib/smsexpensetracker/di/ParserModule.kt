@@ -3,7 +3,11 @@ package com.sajib.smsexpensetracker.di
 import com.sajib.smsexpensetracker.parser.core.ParserEngine
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.institutions.BkashParser
+import com.sajib.smsexpensetracker.parser.institutions.BracBankParser
 import com.sajib.smsexpensetracker.parser.institutions.DutchBanglaParser
+import com.sajib.smsexpensetracker.parser.institutions.NagadParser
+import com.sajib.smsexpensetracker.parser.institutions.PubaliBankParser
+import com.sajib.smsexpensetracker.parser.institutions.UttaraBankParser
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +31,22 @@ object ParserModule {
     @Provides
     @IntoSet
     fun provideDutchBanglaParser(): SmsParser = DutchBanglaParser()
+
+    @Provides
+    @IntoSet
+    fun provideNagadParser(): SmsParser = NagadParser()
+
+    @Provides
+    @IntoSet
+    fun provideUttaraBankParser(): SmsParser = UttaraBankParser()
+
+    @Provides
+    @IntoSet
+    fun providePubaliBankParser(): SmsParser = PubaliBankParser()
+
+    @Provides
+    @IntoSet
+    fun provideBracBankParser(): SmsParser = BracBankParser()
 
     /**
      * The engine takes a List, so the multibound Set is converted here.

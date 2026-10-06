@@ -118,13 +118,16 @@ Use these patterns to route incoming SMS to the right parser. Expand as new inst
 | Institution | Sender address(es) | Notes |
 |---|---|---|
 | bKash | `bKash`, `01678600000` | Amount in BDT, TrxID present |
-| Nagad | `Nagad`, `16167` | "Tk" prefix for amounts; no real samples exist yet, Sajib barely/never uses this wallet, do not build from guessed format |
+| Nagad | `NAGAD` | Verified in a third-party real SMS export, not on Sajib's own device. Cash In, Money Received and Payment supported; fields separated by newlines; promo text can precede the message. `16167` appears only as a helpline number in message bodies and is not used as a sender pattern |
 | Rocket (DBBL Mobile) | unconfirmed, do not assume `16216` | "BDT" suffix per general knowledge only; `16216` was assumed to be Rocket's code but real data shows it is DBBL's own bank-alert sender for this account (see DBBL row). No real Rocket wallet sample exists, Sajib barely/never uses this wallet. If a real Rocket sample ever appears, confirm its actual sender before trusting any assumed code |
 | Dutch-Bangla Bank (DBBL) | `16216` (confirmed via real data: balance inquiry, ATM-to-A/C transfer credit, NexusPay cash-out debit), `DUTCHB` | Priority bank, Sajib holds an account here, real samples confirmed |
 | Sonali Bank | `SonaliBank`, `SBL` *(verify exact sender on device)* | State-owned bank; real samples seen so far are OTP/notification only, no real transaction SMS yet; priority bank, Sajib holds an account here |
 | First Security Islami Bank (FSIBL) | `FSIBL` | Newly discovered via real data, not previously known; "Muhtaram" greeting, deposit-only real samples so far, no debit sample yet |
 | City Bank | `CITY BANK` | One real deposit sample only, multiline body (uses literal newlines), no TrxID visible; needs more samples including a debit before building |
-| BRAC Bank | `BRACB` | Verify sender on device |
+| BRAC Bank | `BRAC BANK` (with the space) | Verified in a real SMS export, not on device. Never use `BRAC` or `BRACB` as a pattern: the engine matches by substring and would catch `BRACBANK` |
+| BRAC Bank notifications | `BRACBANK` (no space) | Notification only, reject. No parser may claim this sender |
+| Uttara Bank | `UTTARA BANK` | Verified in a real SMS export, not on device. Balance can be negative |
+| Pubali Bank | `PUBALI BANK` | Verified in a real SMS export, not on device. "Dr" before the balance is stored as a negative balance |
 | Islami Bank | `IBBL`, `16259` | |
 | UCB | `UCB`, `16419` | |
 | Grameenphone | `GP`, `8008` | Recharge + data packs |
