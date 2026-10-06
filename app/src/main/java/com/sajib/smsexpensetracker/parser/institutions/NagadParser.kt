@@ -39,7 +39,10 @@ import java.math.BigDecimal
  * its own and is not captured.
  *
  * OTP and device registration messages and the Bangla fraud warning
- * intentionally match nothing and return null.
+ * intentionally match nothing and return null. The recharge cashback notice
+ * ("Congrats! You've received Cashback 5.0 Tk for Mobile Recharge of 100.0
+ * Tk.") also returns null: it carries no balance and is not a wallet
+ * transaction.
  */
 class NagadParser : SmsParser {
 

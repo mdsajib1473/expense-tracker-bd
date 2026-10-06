@@ -109,6 +109,17 @@ class NagadParserTest {
     }
 
     @Test
+    fun `recharge cashback notice is never parsed`() {
+        val result = parser.parse(
+            sender = "NAGAD",
+            body = "Congrats! You've received Cashback 5.0 Tk for Mobile Recharge of 100.0 Tk. | 01/02/2024 10:00 | For Details Call 16167",
+            receivedAt = 0L
+        )
+
+        assertNull(result)
+    }
+
+    @Test
     fun `sender patterns contain only the verified address`() {
         assertEquals(listOf("NAGAD"), parser.senderPatterns)
     }

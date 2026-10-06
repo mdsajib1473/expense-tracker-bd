@@ -93,9 +93,9 @@ Features:
 | `DutchBanglaParser` | Balance inquiry, ATM-to-A/C transfer credit, NexusPay cash-out debit | 1st, real data confirmed | Yes (2026-09-02, unit tests green) |
 | `SonaliBankParser` | Debit alert, credit alert | 1st, blocked on real samples | |
 | `FsiblParser` | Deposit/credit alert | 2nd, real data confirmed | |
-| `BracBankParser` | Withdrawal, deposit, debit, credit, branch counter deposit and withdrawal, cheque clearing credit. Sender `BRAC BANK`; `BRACBANK` is notification only and rejected | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
-| `UttaraBankParser` | Debit, credit (balance may be negative) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
-| `PubaliBankParser` | Branch debit and credit, EFT credit, fund transfer credit ("Dr" balance stored negative) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
+| `BracBankParser` | Withdrawal, deposit, debit, credit, branch counter deposit and withdrawal, incoming transfer from another bank, cash deposit, RTGS debit (amount includes charges), loan-linked account deposit, cheque clearing credit. Sender `BRAC BANK`; `BRACBANK` is notification only and rejected | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
+| `UttaraBankParser` | Debit, credit (balance may be negative or absent), SMS service charge debit, balance statement (BALANCE_INQUIRY) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
+| `PubaliBankParser` | Branch debit and credit, EFT credit, fund transfer credit, PI Banking credit ("Dr" balance stored negative, "Cr" positive, no marker keeps its sign) | 3rd, real export samples | Yes (2026-10-07, unit tests green, not device-verified) |
 | `IslamiBankParser` | Debit, credit | 3rd | |
 | `UcbParser` | Debit, credit | 3rd | |
 | `CityBankParser` | Deposit/credit alert | 3rd, one real sample only, needs more before building | |
@@ -105,6 +105,21 @@ Features:
 > City Bank has one real deposit sample, multiline format (uses literal newlines in the SMS body), no TrxID visible in the sample seen. Needs more samples, including a debit, before building.
 > Sonali Bank is state-owned; real SMS seen so far are entirely OTP/notification noise (PIN changes, maintenance notices), no real transaction SMS yet.
 > Add rows as new banks are confirmed. Each parser requires real SMS samples before implementation begins.
+
+#### Known unsupported messages (parsers return null on purpose)
+
+| Sender | Message | Reason |
+|---|---|---|
+| PUBALI BANK | bKash QR payment received ("BDT X RECEIVED FROM ... ,bKash USING QR PAYMENT ON ... .TrxID:...") | No balance, and the Merchant-QR settlement message describes the same money; parsing both would double count |
+| PUBALI BANK | Merchant-QR settlement credit ("Dear Merchant! TK X has been credited for Merchant-QR transaction On Settlement Date ...") | No balance, and it repeats the QR payment above; parsing both would double count |
+| PUBALI BANK | PI Banking app promotion, biometric registration request, account number change after branch merging, thank-you message, cheque book collection, maintenance notice | Not transactions |
+| UTTARA BANK | RTGS sent notice ("your fund transfer through RTGS of TK. X to ... has been sent.") | The bank sends a separate debit alert with the balance for the same transfer; parsing both would double count |
+| UTTARA BANK | SMS banking account created (contains a PIN), loan instalment due, cheque book ready, contact center, dormancy, app update, maintenance, OTP, Bangla security warnings and promotions | Not transactions; the account-created message must never be stored or logged |
+| BRAC BANK | SME loan instalment reminders, paid confirmations, overdue notices, term loan disbursement | Loan account events, not movements on the tracked deposit account |
+| BRAC BANK | Dormancy prevention, cheque book notices, statement and certificate links, OTP messages, sender number notice, Astha registration, bKash promotion | Not transactions |
+| BRACBANK | Every message | Notification-only sender, never routed to a parser |
+| NAGAD | Recharge cashback ("Congrats! You've received Cashback X Tk for Mobile Recharge of Y Tk.") | No balance and not a wallet transaction |
+| NAGAD | OTP, device registration, Bangla fraud warning | Not transactions |
 
 ---
 

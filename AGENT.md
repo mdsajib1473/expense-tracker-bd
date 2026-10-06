@@ -127,7 +127,7 @@ Use these patterns to route incoming SMS to the right parser. Expand as new inst
 | BRAC Bank | `BRAC BANK` (with the space) | Verified in a real SMS export, not on device. Never use `BRAC` or `BRACB` as a pattern: the engine matches by substring and would catch `BRACBANK` |
 | BRAC Bank notifications | `BRACBANK` (no space) | Notification only, reject. No parser may claim this sender |
 | Uttara Bank | `UTTARA BANK` | Verified in a real SMS export, not on device. Balance can be negative |
-| Pubali Bank | `PUBALI BANK` | Verified in a real SMS export, not on device. "Dr" before the balance is stored as a negative balance |
+| Pubali Bank | `PUBALI BANK` | Verified in a real SMS export, not on device. "Dr" before the balance is stored negative, "Cr" positive, no marker keeps its sign |
 | Islami Bank | `IBBL`, `16259` | |
 | UCB | `UCB`, `16419` | |
 | Grameenphone | `GP`, `8008` | Recharge + data packs |
