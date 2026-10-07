@@ -203,14 +203,29 @@ Features:
 
 ### M10: Play Store Build
 **Goal:** Ship a Google Play compliant build alongside the full (sideloaded) build, both feeding one ingestion entry point.
-**Status:** B1 active
+**Status:** B1 done, B2 active
 
 | Phase | Scope | Status |
 |---|---|---|
-| B1 | Build flavors `play` and `full` (dimension `distribution`); SMS permissions and receiver only in `full`; `LiveCaptureSetup` interface with per-flavor Hilt bindings; single ingestion entry point `IngestSmsUseCase` returning Saved, Duplicate or Unrecognized | Active |
-| B2 | XML import | Not started |
+| B1 | Build flavors `play` and `full` (dimension `distribution`); SMS permissions and receiver only in `full`; `LiveCaptureSetup` interface with per-flavor Hilt bindings; single ingestion entry point `IngestSmsUseCase` returning Saved, Duplicate or Unrecognized | Done |
+| B2 | Import from an SMS Backup & Restore XML file in both flavors, with no new permission | Active |
 | B3 | Share and paste intake, plus onboarding | Not started |
 | B4 | Release preparation: signing, AAB, privacy policy, store listing | Not started |
+
+#### B2: what it delivers
+
+- The user picks an XML export of the SMS Backup & Restore app with the system file picker (Storage Access Framework, `ACTION_OPEN_DOCUMENT`). The file is read once through ContentResolver; it is not copied and no persistable URI permission is taken. No READ_SMS, INTERNET or storage permission is needed, so the play flavor gets the feature unchanged. All code is in `src/main`.
+- `data/backup/SmsBackupReader` streams the file: UTF-8 decoding with malformed bytes replaced, a constant-memory `SanitizingXmlReader` in front of the platform XmlPullParser, and a lazy sequence of entries. Emoji written as two surrogate references become one valid reference; lone surrogate and control character references become U+FFFD. A DOCTYPE, a wrong root, a damaged or truncated file each give a typed `BackupImportException` (NOT_SMS_BACKUP, MALFORMED, READ_FAILED) whose message holds no message content.
+- `ImportSmsBackupUseCase` sends every received (`type="1"`) message through `IngestSmsUseCase` and returns an `ImportSummary` of counts only: totalRead, saved, duplicates, unrecognized, skippedNotInbox, invalid. It runs on the IO dispatcher, is cancellable and reports progress. Rows saved before a failure or a cancellation stay saved; re-importing is idempotent through the duplicate check. Unrecognized bodies are never stored or logged.
+- `TransactionListScreen` has an "Import from backup" app bar action and an empty state button. A dialog shows progress (with a Stop button), the summary, or the failure.
+- Verified locally on a real third-party export of 999 received messages: 826 saved and 173 unrecognized on the first run, 0 saved and 826 duplicates on the second.
+
+#### Importing from SMS Backup & Restore
+
+1. In the SMS Backup & Restore app, make a backup of messages and choose a local backup location, for example the phone's storage or Downloads. The result is an XML file named like `sms-YYYYMMDDHHMMSS.xml`.
+2. In this app, tap "Import from backup" in the top bar, or "Import from backup file" while the list is empty.
+3. Pick the XML file. The picker lists all file types, not only XML, because some file managers label this file with an unusual type.
+4. Wait for the summary. Only received messages are read; sent messages are skipped. Messages no parser recognizes are ignored and not stored. Importing the same file again adds nothing new.
 
 > Open conflict, not resolved: the play flavor must declare no INTERNET permission (AGENT.md rule 11), so the planned Firebase sync (M8) cannot ship in the play flavor unless INTERNET is added together with a privacy disclosure.
 

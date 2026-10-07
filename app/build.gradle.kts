@@ -112,4 +112,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.coroutines.test)
+    // XmlPullParser for the backup reader tests on the plain JVM, where
+    // android.util.Xml is only a stub. Test classpath only.
+    testImplementation(libs.kxml2)
 }

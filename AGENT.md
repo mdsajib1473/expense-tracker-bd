@@ -53,6 +53,7 @@ These are non-negotiable. Never violate them.
 ```
 app/
 ├── data/
+│   ├── backup/               # SMS Backup & Restore XML reader (streaming, tolerant), picked-file opener
 │   ├── db/                   # Room database, DAOs, entities
 │   ├── repository/           # TransactionRepository (single source of truth)
 │   └── sync/                 # Firebase sync adapter (opt-in)
@@ -65,6 +66,7 @@ app/
 ├── receiver/
 │   └── SmsReceiver.kt        # full flavor only (src/full), delegates to IngestSmsUseCase
 ├── ui/
+│   ├── backupimport/          # Import from a backup file: ViewModel, state, dialogs
 │   ├── dashboard/             # Home screen: balance summary, recent transactions
 │   ├── transactions/          # Full list with filter/search
 │   ├── reports/                # Weekly / monthly charts

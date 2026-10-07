@@ -1,4 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SMS Expense Tracker</string>
+
+    <!-- Transaction list -->
+    <string name="transactions_empty">No transactions yet</string>
+    <string name="transactions_no_counterparty">-</string>
+
+    <!-- Import from an SMS Backup & Restore file. Worded as importing a file
+         the user picks, never as reading the phone's SMS inbox. -->
+    <string name="backup_import_action">Import from backup</string>
+    <string name="backup_import_empty_hint">You can import transactions from an XML backup file made with the SMS Backup &amp; Restore app.</string>
+    <string name="backup_import_empty_button">Import from backup file</string>
+    <string name="backup_import_progress_title">Importing backup file</string>
+    <plurals name="backup_import_progress">
+        <item quantity="one">Read %d message so far.</item>
+        <item quantity="other">Read %d messages so far.</item>
+    </plurals>
+    <plurals name="backup_import_progress_of_total">
+        <item quantity="one">Read %1$d of %2$d message.</item>
+        <item quantity="other">Read %1$d of %2$d messages.</item>
+    </plurals>
+    <string name="backup_import_cancel">Stop</string>
+    <string name="backup_import_ok">OK</string>
+    <string name="backup_import_done_title">Import finished</string>
+    <plurals name="backup_import_read">
+        <item quantity="one">Read %d message from the backup file.</item>
+        <item quantity="other">Read %d messages from the backup file.</item>
+    </plurals>
+    <plurals name="backup_import_saved">
+        <item quantity="one">Imported %d transaction.</item>
+        <item quantity="other">Imported %d transactions.</item>
+    </plurals>
+    <plurals name="backup_import_duplicates">
+        <item quantity="one">%d duplicate skipped.</item>
+        <item quantity="other">%d duplicates skipped.</item>
+    </plurals>
+    <plurals name="backup_import_unrecognized">
+        <item quantity="one">%d message was not recognized and was ignored. It was not stored.</item>
+        <item quantity="other">%d messages were not recognized and were ignored. They were not stored.</item>
+    </plurals>
+    <plurals name="backup_import_not_inbox">
+        <item quantity="one">%d sent or other non-inbox message was skipped.</item>
+        <item quantity="other">%d sent or other non-inbox messages were skipped.</item>
+    </plurals>
+    <plurals name="backup_import_invalid">
+        <item quantity="one">%d message was incomplete and was skipped.</item>
+        <item quantity="other">%d messages were incomplete and were skipped.</item>
+    </plurals>
+    <string name="backup_import_failed_title">Import stopped</string>
+    <string name="backup_import_error_not_backup">This file is not an SMS Backup &amp; Restore XML backup. Nothing was imported.</string>
+    <string name="backup_import_error_malformed">The backup file is damaged or incomplete, so the import stopped part way. Transactions imported before that point were kept. Importing again is safe and does not create duplicates.</string>
+    <string name="backup_import_error_read_failed">The file could not be read. Any transactions imported before the problem were kept. Importing again is safe and does not create duplicates.</string>
 </resources>

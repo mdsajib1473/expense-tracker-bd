@@ -14,6 +14,7 @@ junit = "4.13.2"
 hiltNavigationCompose = "1.4.0"
 robolectric = "4.16.1"
 androidxTestCore = "1.7.0"
+kxml2 = "2.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,9 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+# XmlPullParser implementation for plain JVM tests. Android ships its own
+# kxml2-derived parser at runtime, so this is never packaged in the app.
+kxml2 = { group = "net.sf.kxml", name = "kxml2", version.ref = "kxml2" }
 
 [plugins]
 # Since AGP 9.0 Kotlin support is built into AGP itself, so there is no
