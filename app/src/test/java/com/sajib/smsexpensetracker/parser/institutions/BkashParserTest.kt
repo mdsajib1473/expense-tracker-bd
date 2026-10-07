@@ -7,9 +7,10 @@ import org.junit.Test
 import java.math.BigDecimal
 
 /**
- * Every body string here is a real bKash SMS, taken from the project's own
- * transaction history, not a guessed format. Amounts with commas are
- * deliberately included since that is a confirmed real edge case.
+ * Every body string here follows the wording and layout of a real bKash SMS,
+ * but every phone number, name, TrxID, OTP, amount and balance is invented.
+ * Amounts with commas are deliberately included since that is a confirmed
+ * real edge case.
  */
 class BkashParserTest {
 
@@ -19,22 +20,22 @@ class BkashParserTest {
     fun `send money success is parsed as debit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Send Money Tk 510.00 to 01813738081 successful. Ref Sajib. Fee Tk 5.00. Balance Tk 4,479.65. TrxID DCK1B9P81H at 20/03/2026 00:08",
+            body = "Send Money Tk 500.00 to 01700000004 successful. Ref SAMPLE. Fee Tk 5.00. Balance Tk 4,495.00. TrxID AAAAAAAAAA at 01/03/2026 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.DEBIT, result?.type)
-        assertEquals(BigDecimal("510.00"), result?.amount)
-        assertEquals(BigDecimal("4479.65"), result?.balance)
-        assertEquals("01813738081", result?.counterparty)
-        assertEquals("DCK1B9P81H", result?.reference)
+        assertEquals(BigDecimal("500.00"), result?.amount)
+        assertEquals(BigDecimal("4495.00"), result?.balance)
+        assertEquals("01700000004", result?.counterparty)
+        assertEquals("AAAAAAAAAA", result?.reference)
     }
 
     @Test
     fun `send money failure returns null, no false debit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Sorry, your Send Money request to 01765992095 is unsuccessful! Tk 30 has been returned. Balance Tk 73.50. TrxID BKA96AB813 at 10/11/2024 14:00",
+            body = "Sorry, your Send Money request to 01700000005 is unsuccessful! Tk 30 has been returned. Balance Tk 70.00. TrxID BBBBBBBBBB at 01/11/2024 10:00",
             receivedAt = 0L
         )
 
@@ -45,106 +46,106 @@ class BkashParserTest {
     fun `receive from phone number with comma amount is parsed as credit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "You have received Tk 5,075.00 from 01735814791. Fee Tk 0.00. Balance Tk 6,075.50. TrxID BLU1H6X87P at 30/12/2024 13:22",
+            body = "You have received Tk 5,000.00 from 01700000006. Fee Tk 0.00. Balance Tk 6,000.00. TrxID CCCCCCCCCC at 01/12/2024 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
-        assertEquals(BigDecimal("5075.00"), result?.amount)
-        assertEquals(BigDecimal("6075.50"), result?.balance)
-        assertEquals("01735814791", result?.counterparty)
-        assertEquals("BLU1H6X87P", result?.reference)
+        assertEquals(BigDecimal("5000.00"), result?.amount)
+        assertEquals(BigDecimal("6000.00"), result?.balance)
+        assertEquals("01700000006", result?.counterparty)
+        assertEquals("CCCCCCCCCC", result?.reference)
     }
 
     @Test
     fun `receive with ref and no space before Ref is still parsed correctly`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "You have received Tk 20,172.00 from 01815474012.Ref jazakallah vai. Fee Tk 0.00. Balance Tk 20,329.00. TrxID CAK845MSGS at 20/01/2025 10:53",
+            body = "You have received Tk 20,000.00 from 01700000007.Ref sample note. Fee Tk 0.00. Balance Tk 20,150.00. TrxID DDDDDDDDDD at 01/01/2025 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
-        assertEquals(BigDecimal("20172.00"), result?.amount)
-        assertEquals("01815474012", result?.counterparty)
-        assertEquals("CAK845MSGS", result?.reference)
+        assertEquals(BigDecimal("20000.00"), result?.amount)
+        assertEquals("01700000007", result?.counterparty)
+        assertEquals("DDDDDDDDDD", result?.reference)
     }
 
     @Test
     fun `receive with business name sender and no fee field is parsed correctly`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "You have received Tk 63.00 from OnnorokomWeb. Balance Tk 1,082.65. TrxID DE971UR13F at 09/05/2026 21:32",
+            body = "You have received Tk 60.00 from SAMPLE MERCHANT. Balance Tk 1,060.00. TrxID EEEEEEEEEE at 01/05/2026 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
-        assertEquals(BigDecimal("63.00"), result?.amount)
-        assertEquals("OnnorokomWeb", result?.counterparty)
-        assertEquals("DE971UR13F", result?.reference)
+        assertEquals(BigDecimal("60.00"), result?.amount)
+        assertEquals("SAMPLE MERCHANT", result?.counterparty)
+        assertEquals("EEEEEEEEEE", result?.reference)
     }
 
     @Test
     fun `bank deposit from Sonali Bank Account is parsed as credit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "You have received a deposit of Tk 1,000.00 from Sonali Bank Account. Fee Tk 0.00. Balance Tk 1,140.34. TrxID CGJ2RQENX4 at 19/07/2025 15:43",
+            body = "You have received a deposit of Tk 1,000.00 from Sonali Bank Account. Fee Tk 0.00. Balance Tk 1,100.00. TrxID FFFFFFFFFF at 01/07/2025 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
         assertEquals(BigDecimal("1000.00"), result?.amount)
         assertEquals("Sonali Bank Account", result?.counterparty)
-        assertEquals("CGJ2RQENX4", result?.reference)
+        assertEquals("FFFFFFFFFF", result?.reference)
     }
 
     @Test
     fun `cash in from agent with trailing promo text is parsed correctly`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Cash In Tk 1,000.00 from 01835908735 successful. Fee Tk 0.00. Balance Tk 1,607.90. TrxID CK710WRNDB at 07/11/2025 22:21. Download App: https://bKa.sh/8app",
+            body = "Cash In Tk 1,000.00 from 01700000008 successful. Fee Tk 0.00. Balance Tk 1,500.00. TrxID GGGGGGGGGG at 01/11/2025 10:00. Download App: https://bKa.sh/8app",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
         assertEquals(BigDecimal("1000.00"), result?.amount)
-        assertEquals("01835908735", result?.counterparty)
-        assertEquals("CK710WRNDB", result?.reference)
+        assertEquals("01700000008", result?.counterparty)
+        assertEquals("GGGGGGGGGG", result?.reference)
     }
 
     @Test
     fun `payment with 'Payment Tk' phrasing is parsed as debit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Payment Tk 100.00 to KAHF BANGLADESH LTD-RM67912 is successful. Balance Tk 601.81. TrxID DG705TRZHM at 07/07/2026 20:36",
+            body = "Payment Tk 100.00 to SAMPLE MERCHANT-RM00001 is successful. Balance Tk 600.00. TrxID HHHHHHHHHH at 01/07/2026 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.DEBIT, result?.type)
         assertEquals(BigDecimal("100.00"), result?.amount)
-        assertEquals("KAHF BANGLADESH LTD-RM67912", result?.counterparty)
-        assertEquals("DG705TRZHM", result?.reference)
+        assertEquals("SAMPLE MERCHANT-RM00001", result?.counterparty)
+        assertEquals("HHHHHHHHHH", result?.reference)
     }
 
     @Test
     fun `payment with 'Payment of Tk' phrasing is parsed as debit`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Payment of Tk 1,015.50 to AS-SUNNAH FOUNDATION-RM56187 is successful. Balance Tk 1,115.15. TrxID DCD92UO50N at 13/03/2026 15:30",
+            body = "Payment of Tk 1,000.50 to SAMPLE MERCHANT-RM00002 is successful. Balance Tk 1,100.00. TrxID JJJJJJJJJJ at 01/03/2026 10:00",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.DEBIT, result?.type)
-        assertEquals(BigDecimal("1015.50"), result?.amount)
-        assertEquals("AS-SUNNAH FOUNDATION-RM56187", result?.counterparty)
-        assertEquals("DCD92UO50N", result?.reference)
+        assertEquals(BigDecimal("1000.50"), result?.amount)
+        assertEquals("SAMPLE MERCHANT-RM00002", result?.counterparty)
+        assertEquals("JJJJJJJJJJ", result?.reference)
     }
 
     @Test
     fun `otp message is never parsed as a transaction`() {
         val result = parser.parse(
             sender = "bKash",
-            body = "Your bKash verification code is 956586. Expires in 2 minutes.",
+            body = "Your bKash verification code is 000000. Expires in 2 minutes.",
             receivedAt = 0L
         )
 

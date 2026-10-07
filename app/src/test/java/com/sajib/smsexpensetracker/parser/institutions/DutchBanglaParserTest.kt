@@ -7,8 +7,9 @@ import org.junit.Test
 import java.math.BigDecimal
 
 /**
- * Every body string here is a real DBBL SMS from sender "16216" on the
- * project's own device, not a guessed format. The cash-out body's missing
+ * Every body string here follows the wording, layout and spacing of a real
+ * DBBL SMS from sender "16216", but every account mask, amount, balance,
+ * TxnId, card fragment and OTP is invented. The cash-out body's missing
  * spaces between fields are the real format and must stay as they are.
  */
 class DutchBanglaParserTest {
@@ -19,13 +20,13 @@ class DutchBanglaParserTest {
     fun `balance inquiry with comma amount is parsed with amount equal to balance`() {
         val result = parser.parse(
             sender = "16216",
-            body = "Balance of your A/C:***0045 is BDT 45,755.13 as on 30/06/25. To download statement click https://app.dutchbanglabank.com/cbsstatement . For query call 16216",
+            body = "Balance of your A/C:***123 is BDT 45,000.00 as on 30/06/25. To download statement click https://app.dutchbanglabank.com/cbsstatement . For query call 16216",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.BALANCE_INQUIRY, result?.type)
-        assertEquals(BigDecimal("45755.13"), result?.amount)
-        assertEquals(BigDecimal("45755.13"), result?.balance)
+        assertEquals(BigDecimal("45000.00"), result?.amount)
+        assertEquals(BigDecimal("45000.00"), result?.balance)
         assertNull(result?.counterparty)
         assertNull(result?.reference)
     }
@@ -34,13 +35,13 @@ class DutchBanglaParserTest {
     fun `balance inquiry without comma amount is parsed`() {
         val result = parser.parse(
             sender = "16216",
-            body = "Balance of your A/C:***0045 is BDT 450.91 as on 31/12/24. To download statement click https://app.dutchbanglabank.com/cbsstatement . For query call 16216",
+            body = "Balance of your A/C:***123 is BDT 450.00 as on 31/12/24. To download statement click https://app.dutchbanglabank.com/cbsstatement . For query call 16216",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.BALANCE_INQUIRY, result?.type)
-        assertEquals(BigDecimal("450.91"), result?.amount)
-        assertEquals(BigDecimal("450.91"), result?.balance)
+        assertEquals(BigDecimal("450.00"), result?.amount)
+        assertEquals(BigDecimal("450.00"), result?.balance)
         assertNull(result?.reference)
     }
 
@@ -48,13 +49,13 @@ class DutchBanglaParserTest {
     fun `atm to account transfer credit is parsed as credit with closing balance`() {
         val result = parser.parse(
             sender = "16216",
-            body = "Dear Sir, your A/C ***0045 credited (ATM A/C to A/C Transfer Credit) by Tk50,000.00 on 01-02-2025 02:55:44 PM C/B Tk50,459.01. NexusPay https://bit.ly/nexuspay",
+            body = "Dear Sir, your A/C ***123 credited (ATM A/C to A/C Transfer Credit) by Tk50,000.00 on 01-02-2025 02:55:44 PM C/B Tk50,450.00. NexusPay https://bit.ly/nexuspay",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.CREDIT, result?.type)
         assertEquals(BigDecimal("50000.00"), result?.amount)
-        assertEquals(BigDecimal("50459.01"), result?.balance)
+        assertEquals(BigDecimal("50450.00"), result?.balance)
         assertEquals("ATM A/C to A/C Transfer Credit", result?.counterparty)
         assertNull(result?.reference)
     }
@@ -63,22 +64,22 @@ class DutchBanglaParserTest {
     fun `nexuspay cash out with no spaces between fields is parsed as debit`() {
         val result = parser.parse(
             sender = "16216",
-            body = "Cash-Out to A/C:***336Tk902.00Fee:Tk15.06 Your A/C Balance: Tk326.89.TxnId:5762726721Date:27-SEP-25 05:59:38 pm. Please download https://bit.ly/nexuspay",
+            body = "Cash-Out to A/C:***456Tk900.00Fee:Tk15.00 Your A/C Balance: Tk300.00.TxnId:1111111111Date:27-SEP-25 05:59:38 pm. Please download https://bit.ly/nexuspay",
             receivedAt = 0L
         )
 
         assertEquals(TransactionType.DEBIT, result?.type)
-        assertEquals(BigDecimal("902.00"), result?.amount)
-        assertEquals(BigDecimal("326.89"), result?.balance)
-        assertEquals("***336", result?.counterparty)
-        assertEquals("5762726721", result?.reference)
+        assertEquals(BigDecimal("900.00"), result?.amount)
+        assertEquals(BigDecimal("300.00"), result?.balance)
+        assertEquals("***456", result?.counterparty)
+        assertEquals("1111111111", result?.reference)
     }
 
     @Test
     fun `debit card otp message is never parsed as a transaction`() {
         val result = parser.parse(
             sender = "16216",
-            body = "Dear Customer, 671016 is your OTP for e-com transaction of Debit Card no# 4840****7242 which will be valid for 5 minutes.",
+            body = "Dear Customer, 000000 is your OTP for e-com transaction of Debit Card no# 0000****0000 which will be valid for 5 minutes.",
             receivedAt = 0L
         )
 

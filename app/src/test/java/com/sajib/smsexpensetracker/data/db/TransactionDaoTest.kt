@@ -38,22 +38,22 @@ class TransactionDaoTest {
         val transaction = Transaction(
             institutionName = "bKash",
             type = TransactionType.CREDIT,
-            amount = BigDecimal("5075.00"),
+            amount = BigDecimal("5000.00"),
             currency = "BDT",
-            balance = BigDecimal("6075.50"),
-            counterparty = "01735814791",
-            reference = "BLU1H6X87P",
-            rawSms = "You have received Tk 5,075.00 from 01735814791. Fee Tk 0.00. Balance Tk 6,075.50. TrxID BLU1H6X87P at 30/12/2024 13:22",
-            receivedAt = 1735562520000L,
-            insertedAt = 1735562520000L
+            balance = BigDecimal("6000.00"),
+            counterparty = "01700000006",
+            reference = "CCCCCCCCCC",
+            rawSms = "You have received Tk 5,000.00 from 01700000006. Fee Tk 0.00. Balance Tk 6,000.00. TrxID CCCCCCCCCC at 01/12/2024 10:00",
+            receivedAt = 1733047200000L,
+            insertedAt = 1733047200000L
         )
 
         dao.insert(transaction)
         val stored = dao.getAll().first()
 
         assertEquals(1, stored.size)
-        assertEquals(BigDecimal("5075.00"), stored[0].amount)
-        assertEquals(BigDecimal("6075.50"), stored[0].balance)
+        assertEquals(BigDecimal("5000.00"), stored[0].amount)
+        assertEquals(BigDecimal("6000.00"), stored[0].balance)
         assertEquals(TransactionType.CREDIT, stored[0].type)
     }
 

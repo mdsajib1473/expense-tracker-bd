@@ -1,4 +1,4 @@
-# AGENT.md — SMS Expense Tracker (Bangladesh)
+# AGENT.md: SMS Expense Tracker (Bangladesh)
 
 > Instructions for AI agents working in this repository. Read this before touching any code.
 

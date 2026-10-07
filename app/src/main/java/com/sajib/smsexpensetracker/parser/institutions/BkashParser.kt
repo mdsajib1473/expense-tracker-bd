@@ -8,32 +8,33 @@ import java.math.BigDecimal
 /**
  * Parses bKash transaction SMS.
  *
- * Real sample bodies this was built against (see project chat history for
- * the full set extracted from an SMS Backup & Restore XML export):
+ * Anonymized sample bodies this was built against. Wording and layout match
+ * the real messages; every phone number, name, TrxID, amount and balance is
+ * invented:
  *
  * Send Money success:
- *   "Send Money Tk 510.00 to 01813738081 successful. Ref Sajib. Fee Tk 5.00.
- *   Balance Tk 4,479.65. TrxID DCK1B9P81H at 20/03/2026 00:08"
+ *   "Send Money Tk 500.00 to 01700000004 successful. Ref SAMPLE. Fee Tk 5.00.
+ *   Balance Tk 4,495.00. TrxID AAAAAAAAAA at 01/03/2026 10:00"
  *
  * Receive (P2P), Ref and Fee both optional, sender can be a phone or a name:
- *   "You have received Tk 5,075.00 from 01735814791. Fee Tk 0.00. Balance
- *   Tk 6,075.50. TrxID BLU1H6X87P at 30/12/2024 13:22"
- *   "You have received Tk 63.00 from OnnorokomWeb. Balance Tk 1,082.65.
- *   TrxID DE971UR13F at 09/05/2026 21:32"
+ *   "You have received Tk 5,000.00 from 01700000006. Fee Tk 0.00. Balance
+ *   Tk 6,000.00. TrxID CCCCCCCCCC at 01/12/2024 10:00"
+ *   "You have received Tk 60.00 from SAMPLE MERCHANT. Balance Tk 1,060.00.
+ *   TrxID EEEEEEEEEE at 01/05/2026 10:00"
  *
  * Receive (bank deposit), treated as Add Money:
  *   "You have received a deposit of Tk 1,000.00 from Sonali Bank Account.
- *   Fee Tk 0.00. Balance Tk 1,140.34. TrxID CGJ2RQENX4 at 19/07/2025 15:43"
+ *   Fee Tk 0.00. Balance Tk 1,100.00. TrxID FFFFFFFFFF at 01/07/2025 10:00"
  *
  * Cash In (agent), also Add Money:
- *   "Cash In Tk 1,000.00 from 01835908735 successful. Fee Tk 0.00. Balance
- *   Tk 1,607.90. TrxID CK710WRNDB at 07/11/2025 22:21. Download App: ..."
+ *   "Cash In Tk 1,000.00 from 01700000008 successful. Fee Tk 0.00. Balance
+ *   Tk 1,500.00. TrxID GGGGGGGGGG at 01/11/2025 10:00. Download App: ..."
  *
  * Payment (merchant), two real phrasings, never has a Fee:
- *   "Payment Tk 100.00 to KAHF BANGLADESH LTD-RM67912 is successful.
- *   Balance Tk 601.81. TrxID DG705TRZHM at 07/07/2026 20:36"
- *   "Payment of Tk 1,015.50 to AS-SUNNAH FOUNDATION-RM56187 is successful.
- *   Balance Tk 1,115.15. TrxID DCD92UO50N at 13/03/2026 15:30"
+ *   "Payment Tk 100.00 to SAMPLE MERCHANT-RM00001 is successful.
+ *   Balance Tk 600.00. TrxID HHHHHHHHHH at 01/07/2026 10:00"
+ *   "Payment of Tk 1,000.50 to SAMPLE MERCHANT-RM00002 is successful.
+ *   Balance Tk 1,100.00. TrxID JJJJJJJJJJ at 01/03/2026 10:00"
  *
  * A failed Send Money ("Sorry, your Send Money request ... is unsuccessful!
  * Tk X has been returned...") intentionally matches nothing here and falls

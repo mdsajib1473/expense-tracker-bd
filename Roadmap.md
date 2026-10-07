@@ -1,4 +1,4 @@
-# Roadmap — SMS Expense Tracker (Bangladesh)
+# Roadmap: SMS Expense Tracker (Bangladesh)
 
 > Living document. Update the status column as work progresses. Decisions recorded here are canonical, reference this before starting any milestone.
 
@@ -12,7 +12,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ## Milestones
 
-### M0 — Skeleton & Tooling
+### M0: Skeleton & Tooling
 **Goal:** Empty project builds, CI passes, team conventions in place.
 **Status:** Done
 
@@ -29,7 +29,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ---
 
-### M1 — First Parser: bKash
+### M1: First Parser (bKash)
 **Goal:** Parse real bKash SMS into `Transaction` records. This milestone proves the parser architecture end-to-end.
 **Status:** Done
 
@@ -48,7 +48,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ---
 
-### M2 — Core Wallet Parsers
+### M2: Core Wallet Parsers
 **Goal:** Cover the three dominant mobile wallets: bKash (already done), Nagad, Rocket.
 **Status:** Nagad done, not device-verified (built from anonymized samples of a third-party real export, not Sajib's own phone). Rocket still blocked, no real data; do not guess its format to unblock this.
 **Depends on:** M1
@@ -62,7 +62,7 @@ A Bangladeshi user installs the app, grants SMS permission, and within 30 second
 
 ---
 
-### M3 — Dashboard UI
+### M3: Dashboard UI
 **Goal:** Replace the plain list with a real home screen showing financial summary.
 **Status:** Not started
 **Depends on:** M2
@@ -82,7 +82,7 @@ Features:
 
 ---
 
-### M4 — Bank SMS Parsers
+### M4: Bank SMS Parsers
 **Goal:** Support major BD scheduled banks that send transaction alert SMS.
 **Status:** Ready to start for DBBL, real data confirmed. Blocked on Sonali Bank pending real transaction samples (only OTP/notification noise found so far).
 **Depends on:** M1 (parser architecture)
@@ -123,7 +123,7 @@ Features:
 
 ---
 
-### M5 — Telecom / Airtime Parsers
+### M5: Telecom / Airtime Parsers
 **Goal:** Track mobile recharge and data pack purchases alongside financial transactions.
 **Status:** Not started
 **Depends on:** M1
@@ -139,7 +139,7 @@ Telecom SMS produces `TransactionType.RECHARGE` or `TransactionType.AIRTIME` rec
 
 ---
 
-### M6 — Reports & Export
+### M6: Reports & Export
 **Goal:** Weekly and monthly summaries, CSV export.
 **Status:** Not started
 **Depends on:** M3
@@ -154,7 +154,7 @@ Features:
 
 ---
 
-### M7 — Manual Entry & Categorization
+### M7: Manual Entry & Categorization
 **Goal:** Let users add cash transactions and override auto-categories.
 **Status:** Not started
 **Depends on:** M3
@@ -167,7 +167,7 @@ Features:
 
 ---
 
-### M8 — Cloud Sync (Optional)
+### M8: Cloud Sync (Optional)
 **Goal:** Firebase Firestore sync for users who want multi-device or backup.
 **Status:** Not started
 **Depends on:** M6
@@ -189,7 +189,7 @@ Tasks:
 
 ---
 
-### M9 — Extensibility UI (Parser Management)
+### M9: Extensibility UI (Parser Management)
 **Goal:** Let power users see which parsers are active and toggle them.
 **Status:** Not started
 **Depends on:** M8
@@ -249,7 +249,7 @@ These will not be built unless the product direction changes:
 | Distribution: sideload APK only, no Play Store | Personal use, no budget for the $25 Play Console fee, and it avoids Google's default-SMS-handler requirement for READ_SMS entirely. Sharing with others happens by handing them the APK directly. |
 | Play Protect / Vivo security warnings on install are expected, not a bug | An app requesting READ_SMS/RECEIVE_SMS from an unsigned/unknown source will very likely trigger a warning on Pixel (Play Protect) and Vivo (iManager) on every fresh sideload. This is normal for this permission combination and is dismissed with a manual "install anyway", not something to engineer around. |
 | Locked stable stack: whatever AGP/Gradle/Kotlin/compileSdk versions are green after the lint fix (M0 baseline) | Original stack (AGP 8.7.3, Kotlin 2.0.21, compileSdk 35) built and tested green on first try. Chasing "newer version available" lint warnings pulled in AGP 9.2.1, Gradle 9.6.1, compileSdk 37 and broke the build repeatedly for zero functional gain, since those specific lint checks are time-relative and never stay satisfied. Do not revert now that it is green; lock the current working versions in the version catalog and do not bump again without a deliberate, specific reason (a real dependency requiring it), not an advisory warning. |
-| bKash Cash Out likely sends no SMS at all (confirmed, not just missing sample) | A real Cash Out was performed and verified in the bKash app's own transaction history (TrxID DG8470M1WM). Searched both the default Messages app and Truecaller (which also indexes SMS) on the device, found nothing. A second person (roommate) reports the same experience. This is treated as a structural gap, not a "need a sample" backlog item: no SmsParser can ever catch a transaction type the network never sends as SMS. Cash Out stays unbuilt via the parser path. If the user wants Cash Out tracked at all, the only route is manual entry (M7), not a parser. Do not revisit this as an M2/M4 task unless new evidence (an actual Cash Out SMS) surfaces. |
+| bKash Cash Out likely sends no SMS at all (confirmed, not just missing sample) | A real Cash Out was performed and verified in the bKash app's own transaction history (TrxID AAAAAAAAAA, invented placeholder for the real id). Searched both the default Messages app and Truecaller (which also indexes SMS) on the device, found nothing. A second person (roommate) reports the same experience. This is treated as a structural gap, not a "need a sample" backlog item: no SmsParser can ever catch a transaction type the network never sends as SMS. Cash Out stays unbuilt via the parser path. If the user wants Cash Out tracked at all, the only route is manual entry (M7), not a parser. Do not revisit this as an M2/M4 task unless new evidence (an actual Cash Out SMS) surfaces. |
 
 ---
 
