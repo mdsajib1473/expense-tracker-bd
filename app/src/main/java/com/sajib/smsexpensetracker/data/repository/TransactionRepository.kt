@@ -7,16 +7,21 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Single source of truth for transaction data. SmsReceiver and the future
- * import job must go through this, never TransactionDao directly.
+ * Single source of truth for transaction data. Writes arrive only through
+ * the ingestion entry point (IngestSmsUseCase), never TransactionDao directly.
  */
 class TransactionRepository @Inject constructor(
     private val dao: TransactionDao
-) {
+) : TransactionWriter {
 
-    suspend fun save(parsed: ParsedTransaction, receivedAt: Long) {
+    /**
+     * Inserts [parsed] unless a row with the same institution, SMS timestamp,
+     * amount, type and balance already exists. The check and the insert run
+     * in one database transaction.
+     */
+    override suspend fun saveIfNew(parsed: ParsedTransaction, receivedAt: Long): Boolean {
         val result = parsed.result
-        dao.insert(
+        return dao.insertIfAbsent(
             Transaction(
                 institutionName = parsed.institutionName,
                 type = result.type,
@@ -32,8 +37,10 @@ class TransactionRepository @Inject constructor(
         )
     }
 
+    /** Every stored transaction, newest first. */
     fun getAll(): Flow<List<Transaction>> = dao.getAll()
 
+    /** Transactions whose SMS arrived between [start] and [end] inclusive, newest first. */
     fun getByDateRange(start: Long, end: Long): Flow<List<Transaction>> =
         dao.getByDateRange(start, end)
 }

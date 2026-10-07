@@ -17,10 +17,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import com.sajib.smsexpensetracker.R
 
 /**
- * Shows the rationale dialog first (Hard Constraint 2), then the real OS
+ * Full flavor only. Shows the rationale dialog first (Hard Constraint 2), then the real OS
  * permission prompt only after the user taps Continue. Calls
  * [onPermissionGranted] once, whenever permission becomes granted, whether
  * that is immediately (already granted from a previous launch) or after the
@@ -72,7 +74,7 @@ fun SmsPermissionGate(
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(onClick = { showRationale = true }) {
-            Text("Grant SMS Access")
+            Text(stringResource(R.string.sms_permission_grant_button))
         }
     }
 }

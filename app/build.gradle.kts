@@ -17,6 +17,20 @@ android {
         versionName = "0.1.0"
     }
 
+    // Play Store compliance (AGENT.md rule 11). "play" declares no SMS
+    // permission, no SMS receiver and no INTERNET permission; "full" keeps
+    // live SMS capture via src/full and installs side by side with play.
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("play") {
+            dimension = "distribution"
+        }
+        create("full") {
+            dimension = "distribution"
+            applicationIdSuffix = ".full"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

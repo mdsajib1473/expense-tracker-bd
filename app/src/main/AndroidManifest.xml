@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- RECEIVE_SMS is requested at runtime only after the rationale dialog
-         (ui/common/SmsPermissionRationaleDialog) per AGENT.md Hard Constraint 2.
-         READ_SMS arrives with the historical import job, a later M1 step. -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-
-    <!-- RECEIVE_SMS would otherwise imply a hard telephony requirement and
-         block installation on telephony-less devices (lint
-         PermissionImpliesUnsupportedChromeOsHardware). Marked optional: the
-         app still installs there, SMS capture is simply inactive. -->
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
+    <!-- Shared by both flavors. No SMS permission, no SMS receiver and no
+         INTERNET permission here: the play flavor must declare none of them
+         (AGENT.md rule 11). Live SMS capture is declared only in
+         src/full/AndroidManifest.xml. -->
 
     <application
         android:name=".SmsExpenseTrackerApp"
@@ -31,18 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- android:permission="android.permission.BROADCAST_SMS" ensures only
-             the system (the sole holder of BROADCAST_SMS) can deliver this
-             broadcast; other apps cannot spoof incoming SMS to the receiver. -->
-        <receiver
-            android:name=".receiver.SmsReceiver"
-            android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
 
     </application>
 

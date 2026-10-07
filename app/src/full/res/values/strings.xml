@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SMS permission flow, full flavor only. English and Bangla are kept
+         together in one string, as shown before this flavor split. -->
+    <string name="sms_permission_grant_button">Grant SMS Access</string>
+    <string name="sms_permission_rationale_title">SMS Access Needed / এসএমএস অ্যাক্সেস প্রয়োজন</string>
+    <string name="sms_permission_rationale_body">This app reads transaction SMS from bKash, Nagad, Rocket, and your banks to build your expense dashboard. Messages never leave your device.\n\nএই অ্যাপটি আপনার বিকাশ, নগদ, রকেট এবং ব্যাংকের লেনদেনের এসএমএস পড়ে খরচের ড্যাশবোর্ড তৈরি করে। মেসেজ কখনো আপনার ডিভাইস থেকে বাইরে যায় না।</string>
+    <string name="sms_permission_rationale_continue">Continue / এগিয়ে যান</string>
+    <string name="sms_permission_rationale_dismiss">Not now / এখন না</string>
+</resources>

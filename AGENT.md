@@ -63,7 +63,7 @@ app/
 │   ├── core/                 # SmsParser interface, ParseResult, ParserEngine
 │   └── institutions/         # One file per institution (bkash.kt, nagad.kt, dbbl.kt, ...)
 ├── receiver/
-│   └── SmsReceiver.kt        # BroadcastReceiver, delegates to ParserEngine only
+│   └── SmsReceiver.kt        # full flavor only (src/full), delegates to IngestSmsUseCase
 ├── ui/
 │   ├── dashboard/             # Home screen: balance summary, recent transactions
 │   ├── transactions/          # Full list with filter/search
@@ -107,7 +107,7 @@ data class ParseResult(
 )
 ```
 
-`ParserEngine` iterates registered parsers, matches by sender, runs `parse()`, and returns the first non-null result. `SmsReceiver` and the historical-import job both go through `ParserEngine`; they never call institution parsers directly.
+`ParserEngine` iterates registered parsers, matches by sender, runs `parse()`, and returns the first non-null result. `SmsReceiver` and the historical-import job both go through the single ingestion entry point `IngestSmsUseCase` (domain/usecase), which runs `ParserEngine`, skips duplicates and writes through the repository; they never call institution parsers directly.
 
 ---
 
@@ -153,11 +153,16 @@ Use these patterns to route incoming SMS to the right parser. Expand as new inst
 
 ## 8. Running Tests
 
+Unit test and build tasks are per variant since the `play` and `full` flavors were added (dimension `distribution`). On Windows use `.\gradlew.bat` with the same task names.
+
 ```bash
 ./gradlew test
-./gradlew testDebugUnitTest
-./gradlew connectedDebugAndroidTest
+./gradlew testPlayDebugUnitTest testFullDebugUnitTest
+./gradlew assemblePlayDebug assembleFullDebug
+./gradlew connectedFullDebugAndroidTest
 ```
+
+`./gradlew test` runs every variant's unit tests. The flavor-specific source sets are `src/play` and `src/full`; shared code in `src/main` must compile in both and must never reference `SmsReceiver`.
 
 All parser logic must have unit test coverage. A PR that adds a parser without tests will be rejected.
 

@@ -201,6 +201,21 @@ Features:
 
 ---
 
+### M10: Play Store Build
+**Goal:** Ship a Google Play compliant build alongside the full (sideloaded) build, both feeding one ingestion entry point.
+**Status:** B1 active
+
+| Phase | Scope | Status |
+|---|---|---|
+| B1 | Build flavors `play` and `full` (dimension `distribution`); SMS permissions and receiver only in `full`; `LiveCaptureSetup` interface with per-flavor Hilt bindings; single ingestion entry point `IngestSmsUseCase` returning Saved, Duplicate or Unrecognized | Active |
+| B2 | XML import | Not started |
+| B3 | Share and paste intake, plus onboarding | Not started |
+| B4 | Release preparation: signing, AAB, privacy policy, store listing | Not started |
+
+> Open conflict, not resolved: the play flavor must declare no INTERNET permission (AGENT.md rule 11), so the planned Firebase sync (M8) cannot ship in the play flavor unless INTERNET is added together with a privacy disclosure.
+
+---
+
 ## Parsers Backlog
 
 Institutions confirmed to send transaction SMS but not yet assigned to a milestone:

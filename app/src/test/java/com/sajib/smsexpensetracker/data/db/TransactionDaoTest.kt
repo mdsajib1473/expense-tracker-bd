@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +57,33 @@ class TransactionDaoTest {
         assertEquals(BigDecimal("5000.00"), stored[0].amount)
         assertEquals(BigDecimal("6000.00"), stored[0].balance)
         assertEquals(TransactionType.CREDIT, stored[0].type)
+    }
+
+    @Test
+    fun `insertIfAbsent skips an identical row including a null balance`() = runTest {
+        val row = Transaction(
+            institutionName = "Uttara Bank", type = TransactionType.CREDIT, amount = BigDecimal("5000"),
+            currency = "BDT", balance = null, counterparty = "Sample Road Branch", reference = null,
+            rawSms = "test", receivedAt = 2000L, insertedAt = 2000L
+        )
+
+        assertTrue(dao.insertIfAbsent(row))
+        assertFalse(dao.insertIfAbsent(row.copy(insertedAt = 3000L)))
+        assertEquals(1, dao.getAll().first().size)
+    }
+
+    @Test
+    fun `insertIfAbsent keeps rows that differ in balance or timestamp`() = runTest {
+        val row = Transaction(
+            institutionName = "bKash", type = TransactionType.DEBIT, amount = BigDecimal("100.00"),
+            currency = "BDT", balance = BigDecimal("500.00"), counterparty = "X", reference = "A1",
+            rawSms = "test", receivedAt = 1000L, insertedAt = 1000L
+        )
+
+        assertTrue(dao.insertIfAbsent(row))
+        assertTrue(dao.insertIfAbsent(row.copy(balance = BigDecimal("400.00"))))
+        assertTrue(dao.insertIfAbsent(row.copy(receivedAt = 1001L)))
+        assertEquals(3, dao.getAll().first().size)
     }
 
     @Test
