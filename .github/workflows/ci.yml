@@ -24,6 +24,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ''
 
       - name: Install SDK platform 37 and build tools
         # Pin the exact SDK packages the local build uses so CI compiles against
