@@ -3,20 +3,27 @@ package com.sajib.smsexpensetracker.capture
 import androidx.compose.runtime.Composable
 
 /**
- * Flavor-specific live SMS capture setup. The full flavor requests the SMS
- * permission (rationale dialog first, Hard Constraint 2) and starts capture;
- * the play flavor declares no SMS permission, so its implementation does
- * nothing. Shared code depends only on this interface, never on SmsReceiver.
+ * Flavor-specific live SMS capture setup. The full flavor offers an optional
+ * onboarding step that requests the SMS permission (rationale dialog first,
+ * Hard Constraint 2) and, once it is granted, runs the one-time inbox
+ * import; the play flavor declares no SMS permission, so its implementation
+ * does nothing. Live capture never gates the rest of the app: the
+ * transaction list, backup import, share and paste work with or without
+ * it. Shared code depends only on this interface, never on SmsReceiver.
  */
 interface LiveCaptureSetup {
 
-    /**
-     * Shows [content] once capture may start, calling [onReady] each time the
-     * prerequisites (for example the SMS permission) are satisfied.
-     */
-    @Composable
-    fun PermissionGate(onReady: () -> Unit, content: @Composable () -> Unit)
+    /** True when this build offers the optional onboarding step [OnboardingStep]. */
+    val hasOnboardingStep: Boolean
 
-    /** Starts capture work after [PermissionGate] reported ready. */
+    /** The optional onboarding step that turns on live capture. Shows nothing when [hasOnboardingStep] is false. */
+    @Composable
+    fun OnboardingStep()
+
+    /**
+     * Starts capture work if its prerequisites (for example the SMS
+     * permission) are met, and otherwise does nothing. Safe to call on
+     * every resume; one-time work runs once.
+     */
     suspend fun startCapture()
 }

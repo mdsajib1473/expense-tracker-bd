@@ -52,27 +52,32 @@ These are non-negotiable. Never violate them.
 
 ```
 app/
+├── capture/                # LiveCaptureSetup interface; per-flavor implementations in src/play and src/full (optional SMS permission step, one-time inbox import)
 ├── data/
-│   ├── backup/               # SMS Backup & Restore XML reader (streaming, tolerant), picked-file opener
-│   ├── db/                   # Room database, DAOs, entities
-│   ├── repository/           # TransactionRepository (single source of truth)
-│   └── sync/                 # Firebase sync adapter (opt-in)
+│   ├── backup/             # SMS Backup & Restore XML reader (streaming, tolerant), picked-file opener
+│   ├── db/                 # Room database, DAOs, entities
+│   ├── repository/         # TransactionRepository (single source of truth): TransactionWriter, TransactionLookup
+│   └── sync/               # Firebase sync adapter (opt-in)
 ├── domain/
-│   ├── model/                # Pure Kotlin data classes (Transaction, Summary, etc.)
-│   └── usecase/              # One class per use case
+│   ├── model/              # Pure Kotlin data classes (IngestResult, ImportSummary, ManualEntryPreparation, etc.)
+│   └── usecase/            # One class per use case (IngestSms, ImportSmsBackup, PrepareManualEntry, SaveManualEntry)
+├── importer/               # FirstLaunchTracker (one-time events); SmsImportJob and InboxImporter in src/full only
 ├── parser/
-│   ├── core/                 # SmsParser interface, ParseResult, ParserEngine
-│   └── institutions/         # One file per institution (bkash.kt, nagad.kt, dbbl.kt, ...)
+│   ├── core/               # SmsParser interface, ParseResult, ParserEngine (sender-routed parse, body-only identifyByBody)
+│   └── institutions/       # One file per institution (bkash.kt, nagad.kt, dbbl.kt, ...)
 ├── receiver/
-│   └── SmsReceiver.kt        # full flavor only (src/full), delegates to IngestSmsUseCase
+│   └── SmsReceiver.kt      # full flavor only (src/full), delegates to IngestSmsUseCase
 ├── ui/
-│   ├── backupimport/          # Import from a backup file: ViewModel, state, dialogs
-│   ├── dashboard/             # Home screen: balance summary, recent transactions
-│   ├── transactions/          # Full list with filter/search
-│   ├── reports/                # Weekly / monthly charts
-│   ├── settings/                # Cloud sync toggle, parser management
-│   └── common/                   # Shared composables, theme
-└── di/                             # Hilt modules
+│   ├── main/               # AppRoot: onboarding or transaction list, with the intake dialog above both
+│   ├── onboarding/         # First-launch onboarding, also reachable from the menu
+│   ├── manualentry/        # Share and paste intake: ViewModel, state, dialogs, share intent reader
+│   ├── backupimport/       # Import from a backup file: ViewModel, state, dialogs
+│   ├── dashboard/          # Home screen: balance summary, recent transactions
+│   ├── transactions/       # Full list with filter/search, empty state
+│   ├── reports/            # Weekly / monthly charts
+│   ├── settings/           # Cloud sync toggle, parser management
+│   └── common/             # Shared composables, theme; SMS permission dialogs in src/full only
+└── di/                     # Hilt modules
 ```
 
 **Pattern:** MVVM + Repository + Use Cases (Clean Architecture lite)

@@ -10,9 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.sajib.smsexpensetracker.R
 import com.sajib.smsexpensetracker.domain.model.BackupImportError
@@ -54,7 +54,7 @@ private fun ImportingDialog(progress: ImportProgress, onCancel: () -> Unit) {
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
         title = { Text(stringResource(R.string.backup_import_progress_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))) {
                 if (total == null) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
                     Text(pluralStringResource(R.plurals.backup_import_progress, progress.processed, progress.processed))

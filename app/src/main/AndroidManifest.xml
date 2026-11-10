@@ -14,12 +14,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmsExpenseTracker">
 
+        <!-- singleTop: a message shared while this activity is already on
+             top is delivered to onNewIntent instead of stacking a second
+             copy. The SEND filter accepts one text/plain message; only
+             EXTRA_TEXT is read, so no permission is needed. -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:label="@string/share_target_label">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 

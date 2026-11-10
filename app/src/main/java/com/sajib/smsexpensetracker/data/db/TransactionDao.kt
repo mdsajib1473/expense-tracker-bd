@@ -35,6 +35,22 @@ interface TransactionDao {
     ): Boolean
 
     /**
+     * True if a row with the same institution, amount, type and balance
+     * exists at any time. Used only to warn before a shared or pasted
+     * message is saved, never to skip a write.
+     */
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM transactions WHERE institutionName = :institutionName " +
+            "AND amount = :amount AND type = :type AND balance IS :balance)"
+    )
+    suspend fun existsSimilar(
+        institutionName: String,
+        amount: BigDecimal,
+        type: TransactionType,
+        balance: BigDecimal?
+    ): Boolean
+
+    /**
      * Inserts [transaction] only if no identical row exists (see [exists]),
      * inside one database transaction. Returns true if a row was written.
      */

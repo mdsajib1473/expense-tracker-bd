@@ -203,13 +203,13 @@ Features:
 
 ### M10: Play Store Build
 **Goal:** Ship a Google Play compliant build alongside the full (sideloaded) build, both feeding one ingestion entry point.
-**Status:** B1 done, B2 active
+**Status:** B1 and B2 done, B3 active
 
 | Phase | Scope | Status |
 |---|---|---|
 | B1 | Build flavors `play` and `full` (dimension `distribution`); SMS permissions and receiver only in `full`; `LiveCaptureSetup` interface with per-flavor Hilt bindings; single ingestion entry point `IngestSmsUseCase` returning Saved, Duplicate or Unrecognized | Done |
-| B2 | Import from an SMS Backup & Restore XML file in both flavors, with no new permission | Active |
-| B3 | Share and paste intake, plus onboarding | Not started |
+| B2 | Import from an SMS Backup & Restore XML file in both flavors, with no new permission | Done |
+| B3 | Share and paste intake of one message, onboarding, empty state; SMS permission optional in the full flavor | Active |
 | B4 | Release preparation: signing, AAB, privacy policy, store listing | Not started |
 
 #### B2: what it delivers
@@ -223,9 +223,31 @@ Features:
 #### Importing from SMS Backup & Restore
 
 1. In the SMS Backup & Restore app, make a backup of messages and choose a local backup location, for example the phone's storage or Downloads. The result is an XML file named like `sms-YYYYMMDDHHMMSS.xml`.
-2. In this app, tap "Import from backup" in the top bar, or "Import from backup file" while the list is empty.
+2. In this app, open the menu (three dots) in the top bar and tap "Import from backup", or tap "Import from backup file" while the list is empty.
 3. Pick the XML file. The picker lists all file types, not only XML, because some file managers label this file with an unusual type.
 4. Wait for the summary. Only received messages are read; sent messages are skipped. Messages no parser recognizes are ignored and not stored. Importing the same file again adds nothing new.
+
+
+#### B3: what it delivers
+
+- Body-only identification: `ParserEngine.identifyByBody` identifies a message that has no sender address. It runs every registered parser on the body, each called with the first of its own declared sender patterns (the same call the sender-routed `parse` makes for that sender), and accepts the result only when exactly one parser recognizes it: `Matched`, `NoMatch` or `Ambiguous`. A parser with no sender pattern is skipped, and a parser that fails with a `NumberFormatException` on the body counts as not recognizing it. The sender-routed `parse` used by live capture and backup import is unchanged, and no parser rule was loosened.
+- `PrepareManualEntryUseCase` checks one shared or pasted text: longer than 2000 characters gives `TooLong` and blank gives `Blank`, both before parsing; otherwise `Preview` (institution, type, amount, balance, reference, plus a similar-transaction flag), `NoMatch` or `Ambiguous`. No result holds the text. `SaveManualEntryUseCase` saves a confirmed preview through `TransactionWriter.saveIfNew` with the user-confirmed date and time and returns `Saved` or `Duplicate`. The stored row has an empty `rawSms` and a null counterparty, because the message text is never kept. A new DAO query warns ("A transaction with the same amount and balance already exists.", with "Add anyway") when a row with the same institution, amount, type and balance exists at any time. No schema change.
+- Share target: `MainActivity` (singleTop) accepts `ACTION_SEND` with `text/plain` from the main manifest, so both flavors get it with no permission. Only `EXTRA_TEXT` is read, as a string; other extras, clip data and URIs are ignored. A share while the app is open arrives through `onNewIntent`. The consumed intent is replaced, and the launch intent is ignored after recreation or a relaunch from Recents, so a message is never processed twice.
+- Paste: "Add from a message" (top bar and empty state) opens a field with a "Check" button. The clipboard is never read by the app. The text lives only in ViewModel memory and is dropped when the check starts or the dialog closes; it never goes into saved state, logs or an intent result.
+- Preview and confirm shows the parsed fields and a date and time that defaults to now (to the minute), with date and time pickers; future dates cannot be picked. Error states never echo the message.
+- Onboarding, shown once on first launch and skippable, and reachable later from the menu ("How to add transactions"): what the app does, the privacy statement, and the three ways to add transactions. The full flavor adds an optional step "Read new messages automatically" with the existing rationale dialog and permission request.
+- Full flavor fix: the SMS permission no longer gates anything. The transaction list, import, share and paste work whether the permission is granted, declined or never answered. The one-time inbox import runs on the first resume after both SMS permissions are granted.
+- Empty state: a short explanation with "Import from backup file" and "Add from a message". "Import from backup" moved into the top bar menu next to "How to add transactions".
+- `hilt-navigation-compose` was replaced by its direct dependency `hilt-lifecycle-viewmodel-compose` (same version, 1.4.0); Navigation is not used.
+- Verified locally on the same third-party export as B2 (999 received messages): every one of the 826 messages the sender-routed path recognizes is matched uniquely and identically by body alone (0 ambiguous, 0 no match), and none of the 173 it leaves unrecognized is matched by body alone.
+
+#### Known limitations
+
+- Shared and pasted messages have no sender, so only formats that exactly one provider recognizes are accepted. A format two providers both recognize is rejected as ambiguous, and a format only recognizable by its sender cannot be added this way.
+- Shared and pasted messages have no timestamp. The user confirms the date and time; it defaults to the moment of the check.
+- A shared or pasted transaction is stored without the message text and without a counterparty.
+
+> Privacy statement: the onboarding text "Your data stays on this device. This app does not use the internet." (string `privacy_statement`) is true only while neither flavor declares the INTERNET permission. It must be revisited if M8 sync is ever added.
 
 > Open conflict, not resolved: the play flavor must declare no INTERNET permission (AGENT.md rule 11), so the planned Firebase sync (M8) cannot ship in the play flavor unless INTERNET is added together with a privacy disclosure.
 

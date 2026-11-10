@@ -2,14 +2,30 @@
 <resources>
     <string name="app_name">SMS Expense Tracker</string>
 
+    <!-- Privacy statement shown in onboarding. It is true for both flavors
+         only while neither declares the INTERNET permission; revisit it if
+         M8 cloud sync is ever added (see Roadmap.md, M10 B3). -->
+    <string name="privacy_statement">Your data stays on this device. This app does not use the internet.</string>
+
     <!-- Transaction list -->
     <string name="transactions_empty">No transactions yet</string>
+    <string name="transactions_empty_hint">Import an XML backup made with the SMS Backup &amp; Restore app, or add one bank or wallet message by pasting it here or sharing it from your SMS app.</string>
     <string name="transactions_no_counterparty">-</string>
+    <string name="transaction_amount_credit">+ Tk %1$s</string>
+    <string name="transaction_amount_debit">- Tk %1$s</string>
+    <string name="menu_more_options">More options</string>
+    <string name="menu_how_to_add">How to add transactions</string>
+
+    <!-- Transaction types as shown to the user. -->
+    <string name="transaction_type_debit">Debit</string>
+    <string name="transaction_type_credit">Credit</string>
+    <string name="transaction_type_balance_inquiry">Balance inquiry</string>
+    <string name="transaction_type_recharge">Recharge</string>
+    <string name="transaction_type_airtime">Airtime</string>
 
     <!-- Import from an SMS Backup & Restore file. Worded as importing a file
          the user picks, never as reading the phone's SMS inbox. -->
     <string name="backup_import_action">Import from backup</string>
-    <string name="backup_import_empty_hint">You can import transactions from an XML backup file made with the SMS Backup &amp; Restore app.</string>
     <string name="backup_import_empty_button">Import from backup file</string>
     <string name="backup_import_progress_title">Importing backup file</string>
     <plurals name="backup_import_progress">
@@ -51,4 +67,62 @@
     <string name="backup_import_error_not_backup">This file is not an SMS Backup &amp; Restore XML backup. Nothing was imported.</string>
     <string name="backup_import_error_malformed">The backup file is damaged or incomplete, so the import stopped part way. Transactions imported before that point were kept. Importing again is safe and does not create duplicates.</string>
     <string name="backup_import_error_read_failed">The file could not be read. Any transactions imported before the problem were kept. Importing again is safe and does not create duplicates.</string>
+
+    <!-- Add one transaction from a shared or pasted message. The message
+         text is never echoed back in any of these. -->
+    <string name="share_target_label">Add to SMS Expense Tracker</string>
+    <string name="manual_entry_action">Add from a message</string>
+    <string name="manual_entry_input_title">Add from a message</string>
+    <string name="manual_entry_input_label">Bank or wallet message</string>
+    <string name="manual_entry_input_help">Copy one transaction message in your SMS app and paste it here. It is checked on this device. The message text itself is not saved.</string>
+    <string name="manual_entry_check">Check</string>
+    <string name="manual_entry_cancel">Cancel</string>
+    <string name="manual_entry_close">Close</string>
+    <string name="manual_entry_try_again">Try again</string>
+    <string name="manual_entry_checking">Checking the message…</string>
+    <string name="manual_entry_preview_title">Add this transaction?</string>
+    <string name="manual_entry_field_institution">Provider</string>
+    <string name="manual_entry_field_type">Type</string>
+    <string name="manual_entry_field_amount">Amount</string>
+    <string name="manual_entry_field_balance">Balance</string>
+    <string name="manual_entry_field_reference">Reference</string>
+    <string name="manual_entry_field_date">Date and time</string>
+    <string name="manual_entry_value_missing">Not in the message</string>
+    <string name="manual_entry_amount">Tk %1$s</string>
+    <string name="manual_entry_date_help">Shared and pasted messages carry no date. Set the date and time of the transaction.</string>
+    <string name="manual_entry_change_date">Change date</string>
+    <string name="manual_entry_change_time">Change time</string>
+    <string name="manual_entry_picker_ok">OK</string>
+    <string name="manual_entry_time_picker_title">Transaction time</string>
+    <string name="manual_entry_similar_warning">A transaction with the same amount and balance already exists.</string>
+    <string name="manual_entry_save">Save</string>
+    <string name="manual_entry_add_anyway">Add anyway</string>
+    <string name="manual_entry_error_title">Not saved</string>
+    <string name="manual_entry_error_not_recognized">This message was not recognized as a supported bank or wallet transaction. Nothing was saved.</string>
+    <string name="manual_entry_error_ambiguous">This message matches more than one provider, so it was not saved.</string>
+    <plurals name="manual_entry_error_too_long">
+        <item quantity="one">This text is longer than %d character, which is too long for one bank or wallet message. Nothing was saved.</item>
+        <item quantity="other">This text is longer than %d characters, which is too long for one bank or wallet message. Nothing was saved.</item>
+    </plurals>
+    <string name="manual_entry_error_blank">There was no message text to check. Nothing was saved.</string>
+    <string name="manual_entry_saved_title">Transaction saved</string>
+    <string name="manual_entry_saved_body">The transaction was added to your list.</string>
+    <string name="manual_entry_duplicate_title">Already saved</string>
+    <string name="manual_entry_duplicate_body">This transaction, with the same date and time, is already in your list. Nothing new was added.</string>
+
+    <!-- Onboarding, shown once on first launch and again from the menu. -->
+    <string name="onboarding_step_count">Step %1$d of %2$d</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_done">Done</string>
+    <string name="onboarding_welcome_title">Your bank and wallet transactions in one list</string>
+    <string name="onboarding_welcome_body">This app turns transaction messages from supported banks and mobile wallets into one list of the money coming in and going out.</string>
+    <string name="onboarding_ways_title">Three ways to add transactions</string>
+    <string name="onboarding_way_import_title">Import a backup file</string>
+    <string name="onboarding_way_import_body">Make an XML backup of your messages with the SMS Backup &amp; Restore app. Then choose Import from backup in this app\'s menu and pick the file.</string>
+    <string name="onboarding_way_share_title">Share a message</string>
+    <string name="onboarding_way_share_body">In your SMS app, share one bank or wallet message and choose this app.</string>
+    <string name="onboarding_way_paste_title">Paste a message</string>
+    <string name="onboarding_way_paste_body">Copy one bank or wallet message, tap Add from a message, and paste it.</string>
 </resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing scale shared by every screen. -->
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">12dp</dimen>
+    <dimen name="spacing_large">16dp</dimen>
+    <dimen name="spacing_xlarge">24dp</dimen>
+
+    <!-- Minimum touch target for anything tappable (accessibility). -->
+    <dimen name="min_touch_target">48dp</dimen>
+</resources>

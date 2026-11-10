@@ -6,9 +6,12 @@ import com.sajib.smsexpensetracker.parser.core.ParserEngine
 import javax.inject.Inject
 
 /**
- * The single ingestion entry point: every SMS, whatever its source (live
- * receiver, inbox import, and later XML import or share intake), goes through
- * here so parsing, de-duplication and saving exist in exactly one place.
+ * The single ingestion entry point for every SMS that arrives with its
+ * sender address and timestamp (live receiver, inbox import, backup file
+ * import), so sender-routed parsing, de-duplication and saving exist in
+ * exactly one place. Shared or pasted text has neither, so it goes through
+ * PrepareManualEntryUseCase and SaveManualEntryUseCase instead, which use
+ * the same parsers and the same duplicate check.
  *
  * An unrecognized body is dropped immediately: it is never stored, never
  * logged and never returned, since it may contain an OTP or a PIN

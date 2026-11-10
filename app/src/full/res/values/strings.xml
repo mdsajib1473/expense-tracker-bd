@@ -7,4 +7,9 @@
     <string name="sms_permission_rationale_body">This app reads transaction SMS from bKash, Nagad, Rocket, and your banks to build your expense dashboard. Messages never leave your device.\n\nএই অ্যাপটি আপনার বিকাশ, নগদ, রকেট এবং ব্যাংকের লেনদেনের এসএমএস পড়ে খরচের ড্যাশবোর্ড তৈরি করে। মেসেজ কখনো আপনার ডিভাইস থেকে বাইরে যায় না।</string>
     <string name="sms_permission_rationale_continue">Continue / এগিয়ে যান</string>
     <string name="sms_permission_rationale_dismiss">Not now / এখন না</string>
+
+    <!-- Optional onboarding step, full flavor only. English only until M3. -->
+    <string name="live_capture_onboarding_title">Read new messages automatically</string>
+    <string name="live_capture_onboarding_body">Optional. If you allow SMS access, new bank and wallet messages are added as they arrive, and the messages already on your phone are read once. If you skip this, importing a backup file, sharing a message and pasting a message all still work.</string>
+    <string name="live_capture_onboarding_granted">SMS access is allowed. New bank and wallet messages are added automatically.</string>
 </resources>

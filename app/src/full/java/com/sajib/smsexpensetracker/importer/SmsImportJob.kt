@@ -15,15 +15,15 @@ import javax.inject.Inject
  * exactly one place.
  *
  * Requires READ_SMS to already be granted; the caller is responsible for
- * checking permission and first-launch state before calling run().
+ * checking permission and first-launch state before calling importInbox().
  */
 class SmsImportJob @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ingestSms: IngestSmsUseCase
-) {
+) : InboxImporter {
 
     /** Ingests every inbox SMS on the IO dispatcher. */
-    suspend fun run() = withContext(Dispatchers.IO) {
+    override suspend fun importInbox(): Unit = withContext(Dispatchers.IO) {
         val cursor = context.contentResolver.query(
             Telephony.Sms.Inbox.CONTENT_URI,
             arrayOf(Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE),
