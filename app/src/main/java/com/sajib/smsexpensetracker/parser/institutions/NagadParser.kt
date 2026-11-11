@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses Nagad wallet transaction SMS.
@@ -43,6 +43,9 @@ import java.math.BigDecimal
  * ("Congrats! You've received Cashback 5.0 Tk for Mobile Recharge of 100.0
  * Tk.") also returns null: it carries no balance and is not a wallet
  * transaction.
+ *
+ * A message whose amount or balance text is not a number, for example a
+ * lone comma, is not recognized either: parse returns null and never throws.
  */
 class NagadParser : SmsParser {
 
@@ -83,8 +86,8 @@ class NagadParser : SmsParser {
             val (amount, agent, txnId, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = agent,
                 reference = txnId,
                 rawSms = body
@@ -95,8 +98,8 @@ class NagadParser : SmsParser {
             val (amount, senderPhone, txnId, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = senderPhone,
                 reference = txnId,
                 rawSms = body
@@ -107,8 +110,8 @@ class NagadParser : SmsParser {
             val (merchant, amount, txnId, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.DEBIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = merchant,
                 reference = txnId,
                 rawSms = body
@@ -117,8 +120,4 @@ class NagadParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 }

@@ -230,7 +230,7 @@ Features:
 
 #### B3: what it delivers
 
-- Body-only identification: `ParserEngine.identifyByBody` identifies a message that has no sender address. It runs every registered parser on the body, each called with the first of its own declared sender patterns (the same call the sender-routed `parse` makes for that sender), and accepts the result only when exactly one parser recognizes it: `Matched`, `NoMatch` or `Ambiguous`. A parser with no sender pattern is skipped, and a parser that fails with a `NumberFormatException` on the body counts as not recognizing it. The sender-routed `parse` used by live capture and backup import is unchanged, and no parser rule was loosened.
+- Body-only identification: `ParserEngine.identifyByBody` identifies a message that has no sender address. It runs every registered parser on the body, each called with the first of its own declared sender patterns (the same call the sender-routed `parse` makes for that sender), and accepts the result only when exactly one parser recognizes it: `Matched`, `NoMatch` or `Ambiguous`. A parser with no sender pattern is skipped, and a parser that throws on the body counts as not recognizing it (B3.1 widened this from `NumberFormatException` to any exception except cancellation, and added the same guard to the sender-routed `parse`). The sender-routed `parse` used by live capture and backup import is unchanged, and no parser rule was loosened.
 - `PrepareManualEntryUseCase` checks one shared or pasted text: longer than 2000 characters gives `TooLong` and blank gives `Blank`, both before parsing; otherwise `Preview` (institution, type, amount, balance, reference, plus a similar-transaction flag), `NoMatch` or `Ambiguous`. No result holds the text. `SaveManualEntryUseCase` saves a confirmed preview through `TransactionWriter.saveIfNew` with the user-confirmed date and time and returns `Saved` or `Duplicate`. The stored row has an empty `rawSms` and a null counterparty, because the message text is never kept. A new DAO query warns ("A transaction with the same amount and balance already exists.", with "Add anyway") when a row with the same institution, amount, type and balance exists at any time. No schema change.
 - Share target: `MainActivity` (singleTop) accepts `ACTION_SEND` with `text/plain` from the main manifest, so both flavors get it with no permission. Only `EXTRA_TEXT` is read, as a string; other extras, clip data and URIs are ignored. A share while the app is open arrives through `onNewIntent`. The consumed intent is replaced, and the launch intent is ignored after recreation or a relaunch from Recents, so a message is never processed twice.
 - Paste: "Add from a message" (top bar and empty state) opens a field with a "Check" button. The clipboard is never read by the app. The text lives only in ViewModel memory and is dropped when the check starts or the dialog closes; it never goes into saved state, logs or an intent result.
@@ -240,6 +240,14 @@ Features:
 - Empty state: a short explanation with "Import from backup file" and "Add from a message". "Import from backup" moved into the top bar menu next to "How to add transactions".
 - `hilt-navigation-compose` was replaced by its direct dependency `hilt-lifecycle-viewmodel-compose` (same version, 1.4.0); Navigation is not used.
 - Verified locally on the same third-party export as B2 (999 received messages): every one of the 826 messages the sender-routed path recognizes is matched uniquely and identically by body alone (0 ambiguous, 0 no match), and none of the 173 it leaves unrecognized is matched by body alone.
+
+#### B3.1: crash hardening (no new features)
+
+- Amount and balance text that is not a number (a lone comma, for example) made `BigDecimal` throw inside every parser, which crashed the full flavor's SMS receiver and the backup import in both flavors. All six parsers now share `parseAmountOrNull` (parser/core) and return null for such a message. Output for valid messages is unchanged.
+- `ParserEngine` treats an exception from a parser as "not recognized" in both entry points, rethrows cancellation and logs nothing.
+- `SmsReceiver` no longer crashes on a message part that has no text body.
+- Full flavor: when Android no longer shows the SMS permission prompt, the onboarding step offers "Open app settings" instead.
+- A balance inquiry in the transaction list shows its label and balance with no plus or minus sign of its own.
 
 #### Known limitations
 

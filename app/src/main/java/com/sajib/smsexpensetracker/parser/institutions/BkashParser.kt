@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses bKash transaction SMS.
@@ -45,6 +45,9 @@ import java.math.BigDecimal
  * The bKash OTP message ("Your bKash verification code is ...") also
  * intentionally matches nothing and returns null, since it is not a
  * transaction and must never be stored.
+ *
+ * A message whose amount or balance text is not a number, for example a
+ * lone comma, is not recognized either: parse returns null and never throws.
  */
 class BkashParser : SmsParser {
 
@@ -58,8 +61,8 @@ class BkashParser : SmsParser {
             val (amount, _, _, balance, trxId) = match.destructured
             return ParseResult(
                 type = TransactionType.DEBIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = match.groupValues[2],
                 reference = trxId,
                 rawSms = body
@@ -70,8 +73,8 @@ class BkashParser : SmsParser {
             val (amount, _, _, balance, trxId) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = "Sonali Bank Account",
                 reference = trxId,
                 rawSms = body
@@ -85,8 +88,8 @@ class BkashParser : SmsParser {
             val trxId = match.groupValues[4]
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = counterparty,
                 reference = trxId,
                 rawSms = body
@@ -97,8 +100,8 @@ class BkashParser : SmsParser {
             val (amount, phone, _, balance, trxId) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = phone,
                 reference = trxId,
                 rawSms = body
@@ -109,8 +112,8 @@ class BkashParser : SmsParser {
             val (amount, merchant, balance, trxId) = match.destructured
             return ParseResult(
                 type = TransactionType.DEBIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = merchant,
                 reference = trxId,
                 rawSms = body
@@ -119,10 +122,6 @@ class BkashParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 
     private companion object {
         val sendMoneyPattern = Regex(

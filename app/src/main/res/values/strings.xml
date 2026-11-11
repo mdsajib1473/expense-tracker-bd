@@ -13,6 +13,7 @@
     <string name="transactions_no_counterparty">-</string>
     <string name="transaction_amount_credit">+ Tk %1$s</string>
     <string name="transaction_amount_debit">- Tk %1$s</string>
+    <string name="transaction_amount_balance">Tk %1$s</string>
     <string name="menu_more_options">More options</string>
     <string name="menu_how_to_add">How to add transactions</string>
 

@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -44,9 +45,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sajib.smsexpensetracker.R
 import com.sajib.smsexpensetracker.data.db.Transaction
-import com.sajib.smsexpensetracker.parser.core.TransactionType
 import com.sajib.smsexpensetracker.ui.backupimport.BackupImportDialog
 import com.sajib.smsexpensetracker.ui.backupimport.BackupImportViewModel
+import com.sajib.smsexpensetracker.ui.common.labelRes
 
 /**
  * Some file managers label an SMS Backup & Restore export oddly, so the
@@ -181,12 +182,23 @@ private fun EmptyState(
 
 @Composable
 private fun TransactionRow(transaction: Transaction) {
-    val isCredit = transaction.type == TransactionType.CREDIT
-    val amountColor = colorResource(if (isCredit) R.color.amount_credit else R.color.amount_debit)
-    val amountText = stringResource(
-        if (isCredit) R.string.transaction_amount_credit else R.string.transaction_amount_debit,
-        transaction.amount.toPlainString()
-    )
+    val kind = transaction.amountKind()
+    val figure = transaction.displayedFigure().toPlainString()
+    val amountText = when (kind) {
+        AmountKind.MONEY_IN -> stringResource(R.string.transaction_amount_credit, figure)
+        AmountKind.MONEY_OUT -> stringResource(R.string.transaction_amount_debit, figure)
+        AmountKind.BALANCE -> stringResource(R.string.transaction_amount_balance, figure)
+    }
+    val amountColor = when (kind) {
+        AmountKind.MONEY_IN -> colorResource(R.color.amount_credit)
+        AmountKind.MONEY_OUT -> colorResource(R.color.amount_debit)
+        AmountKind.BALANCE -> LocalContentColor.current
+    }
+    val detail = if (kind == AmountKind.BALANCE) {
+        stringResource(transaction.type.labelRes())
+    } else {
+        transaction.counterparty ?: stringResource(R.string.transactions_no_counterparty)
+    }
 
     Row(
         modifier = Modifier
@@ -201,10 +213,7 @@ private fun TransactionRow(transaction: Transaction) {
     ) {
         Column(Modifier.weight(1f)) {
             Text(transaction.institutionName, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = transaction.counterparty ?: stringResource(R.string.transactions_no_counterparty),
-                style = MaterialTheme.typography.bodySmall
-            )
+            Text(text = detail, style = MaterialTheme.typography.bodySmall)
         }
         Text(
             text = amountText,

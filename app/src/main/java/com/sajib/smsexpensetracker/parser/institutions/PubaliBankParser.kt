@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses Pubali Bank account alert SMS.
@@ -48,6 +48,8 @@ import java.math.BigDecimal
  *   settlement, so parsing both would double count.
  * - Cheque book, PI Banking app, biometric registration, account number
  *   change, thank-you and maintenance notices: not transactions.
+ * - A message whose amount or balance text is not a number, for example a
+ *   lone comma: not recognized, and parse never throws.
  */
 class PubaliBankParser : SmsParser {
 
@@ -104,14 +106,14 @@ class PubaliBankParser : SmsParser {
             val direction = match.groupValues[2]
             val source = match.groupValues[3].ifEmpty { match.groupValues[4] }
             val marker = match.groupValues[5]
-            val balance = parseAmount(match.groupValues[6])
+            val balance = parseAmountOrNull(match.groupValues[6]) ?: return null
             return ParseResult(
                 type = if (direction.startsWith("credited", ignoreCase = true)) {
                     TransactionType.CREDIT
                 } else {
                     TransactionType.DEBIT
                 },
-                amount = parseAmount(amount),
+                amount = parseAmountOrNull(amount) ?: return null,
                 balance = when {
                     marker.equals(DEBIT_BALANCE_MARKER, ignoreCase = true) -> balance.abs().negate()
                     marker.equals(CREDIT_BALANCE_MARKER, ignoreCase = true) -> balance.abs()
@@ -127,8 +129,8 @@ class PubaliBankParser : SmsParser {
             val (amount, senderName, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = senderName,
                 reference = null,
                 rawSms = body
@@ -137,8 +139,4 @@ class PubaliBankParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 }

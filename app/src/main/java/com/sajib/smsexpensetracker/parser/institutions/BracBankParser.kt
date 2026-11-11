@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses BRAC Bank account alert SMS.
@@ -55,6 +55,9 @@ import java.math.BigDecimal
  * stored. Loan instalment reminders, confirmations and disbursements,
  * overdue and dormancy notices, cheque book notices and OTP messages
  * intentionally match nothing and return null.
+ *
+ * A message whose amount or balance text is not a number, for example a
+ * lone comma, is not recognized either: parse returns null and never throws.
  */
 class BracBankParser : SmsParser {
 
@@ -115,8 +118,8 @@ class BracBankParser : SmsParser {
             val (chequeNumber, amount, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = null,
                 reference = chequeNumber,
                 rawSms = body
@@ -127,8 +130,8 @@ class BracBankParser : SmsParser {
             val (amount, balance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = null,
                 reference = null,
                 rawSms = body
@@ -140,8 +143,8 @@ class BracBankParser : SmsParser {
             val isCredit = creditDirectionPrefixes.any { direction.startsWith(it, ignoreCase = true) }
             return ParseResult(
                 type = if (isCredit) TransactionType.CREDIT else TransactionType.DEBIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = channel.ifEmpty { source }.ifEmpty { null },
                 reference = null,
                 rawSms = body
@@ -150,8 +153,4 @@ class BracBankParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 }

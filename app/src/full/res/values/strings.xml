@@ -12,4 +12,6 @@
     <string name="live_capture_onboarding_title">Read new messages automatically</string>
     <string name="live_capture_onboarding_body">Optional. If you allow SMS access, new bank and wallet messages are added as they arrive, and the messages already on your phone are read once. If you skip this, importing a backup file, sharing a message and pasting a message all still work.</string>
     <string name="live_capture_onboarding_granted">SMS access is allowed. New bank and wallet messages are added automatically.</string>
+    <string name="live_capture_onboarding_denied">SMS access is not allowed for this app. To allow it, open app settings and allow SMS under Permissions. Everything else in the app works without it.</string>
+    <string name="sms_permission_open_settings_button">Open app settings</string>
 </resources>

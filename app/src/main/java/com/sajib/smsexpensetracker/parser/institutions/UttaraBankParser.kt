@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses Uttara Bank account alert SMS.
@@ -55,6 +55,10 @@ import java.math.BigDecimal
  *
  * The account number is never copied into the result. The text after "from"
  * is used as the counterparty and need not contain the word "Branch".
+ *
+ * A message whose amount or balance text is not a number, for example a
+ * lone comma, is not recognized: parse returns null and never throws. A
+ * balance that is present but not a number is never read as "no balance".
  */
 class UttaraBankParser : SmsParser {
 
@@ -99,7 +103,7 @@ class UttaraBankParser : SmsParser {
         val text = body.trim()
 
         balanceStatementPattern.find(text)?.let { match ->
-            val reported = parseAmount(match.groupValues[1])
+            val reported = parseAmountOrNull(match.groupValues[1]) ?: return null
             return ParseResult(
                 type = TransactionType.BALANCE_INQUIRY,
                 amount = reported,
@@ -118,8 +122,8 @@ class UttaraBankParser : SmsParser {
                 } else {
                     TransactionType.DEBIT
                 },
-                amount = parseAmount(amount),
-                balance = balance.ifEmpty { null }?.let(::parseAmount),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = if (balance.isEmpty()) null else parseAmountOrNull(balance) ?: return null,
                 counterparty = source,
                 reference = null,
                 rawSms = body
@@ -128,8 +132,4 @@ class UttaraBankParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 }

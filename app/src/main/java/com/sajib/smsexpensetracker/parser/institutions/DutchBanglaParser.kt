@@ -3,7 +3,7 @@ package com.sajib.smsexpensetracker.parser.institutions
 import com.sajib.smsexpensetracker.parser.core.ParseResult
 import com.sajib.smsexpensetracker.parser.core.SmsParser
 import com.sajib.smsexpensetracker.parser.core.TransactionType
-import java.math.BigDecimal
+import com.sajib.smsexpensetracker.parser.core.parseAmountOrNull
 
 /**
  * Parses Dutch-Bangla Bank (DBBL) account alert SMS.
@@ -42,6 +42,9 @@ import java.math.BigDecimal
  *
  * For a balance inquiry there is no separate transaction amount, so amount
  * and balance deliberately hold the same figure for that type only.
+ *
+ * A message whose amount or balance text is not a number, for example a
+ * lone comma, is not recognized: parse returns null and never throws.
  */
 class DutchBanglaParser : SmsParser {
 
@@ -52,7 +55,7 @@ class DutchBanglaParser : SmsParser {
         val text = body.trim()
 
         balanceInquiryPattern.find(text)?.let { match ->
-            val reported = parseAmount(match.groupValues[2])
+            val reported = parseAmountOrNull(match.groupValues[2]) ?: return null
             return ParseResult(
                 type = TransactionType.BALANCE_INQUIRY,
                 amount = reported,
@@ -67,8 +70,8 @@ class DutchBanglaParser : SmsParser {
             val (_, description, amount, _, closingBalance) = match.destructured
             return ParseResult(
                 type = TransactionType.CREDIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(closingBalance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(closingBalance) ?: return null,
                 counterparty = description,
                 reference = null,
                 rawSms = body
@@ -79,8 +82,8 @@ class DutchBanglaParser : SmsParser {
             val (destinationAccount, amount, _, balance, txnId) = match.destructured
             return ParseResult(
                 type = TransactionType.DEBIT,
-                amount = parseAmount(amount),
-                balance = parseAmount(balance),
+                amount = parseAmountOrNull(amount) ?: return null,
+                balance = parseAmountOrNull(balance) ?: return null,
                 counterparty = destinationAccount,
                 reference = txnId,
                 rawSms = body
@@ -89,10 +92,6 @@ class DutchBanglaParser : SmsParser {
 
         return null
     }
-
-    /** Strips thousands-separator commas so BigDecimal parses cleanly. */
-    private fun parseAmount(raw: String): BigDecimal =
-        BigDecimal(raw.replace(",", ""))
 
     private companion object {
         /**

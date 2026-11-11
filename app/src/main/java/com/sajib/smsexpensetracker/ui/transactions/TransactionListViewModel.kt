@@ -9,11 +9,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+/**
+ * Exposes the stored transactions to the transaction list screen. Reads
+ * only: every write goes through the ingestion and intake use cases.
+ */
 @HiltViewModel
 class TransactionListViewModel @Inject constructor(
     repository: TransactionRepository
 ) : ViewModel() {
 
+    /**
+     * Every stored transaction, newest first, kept up to date by Room. Empty
+     * until the first read finishes. Collection stops five seconds after the
+     * last collector leaves, so a rotation does not restart the query.
+     */
     val transactions: StateFlow<List<com.sajib.smsexpensetracker.data.db.Transaction>> =
         repository.getAll()
             .stateIn(

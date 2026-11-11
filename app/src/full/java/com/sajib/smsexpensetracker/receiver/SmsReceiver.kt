@@ -27,6 +27,10 @@ import javax.inject.Inject
  * one logical message in the same intent. This receiver concatenates every
  * part's body before ingestion, so a long bKash SMS that splits mid-message
  * is parsed as a whole, not dropped.
+ *
+ * A part can have no text body at all: SmsMessage.getMessageBody returns
+ * null when the user data is not text the platform can decode. Such a part
+ * adds nothing to the joined body and must never crash the receiver.
  */
 @AndroidEntryPoint
 class SmsReceiver : BroadcastReceiver() {
@@ -40,7 +44,7 @@ class SmsReceiver : BroadcastReceiver() {
         if (messages.isNullOrEmpty()) return
 
         val sender = messages[0].originatingAddress ?: return
-        val body = messages.joinToString(separator = "") { it.messageBody }
+        val body = messages.joinToString(separator = "") { it.messageBody.orEmpty() }
         val receivedAt = messages[0].timestampMillis
 
         val pendingResult = goAsync()

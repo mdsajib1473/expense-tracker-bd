@@ -116,6 +116,15 @@ data class ParseResult(
 
 `ParserEngine` iterates registered parsers, matches by sender, runs `parse()`, and returns the first non-null result. `SmsReceiver` and the historical-import job both go through the single ingestion entry point `IngestSmsUseCase` (domain/usecase), which runs `ParserEngine`, skips duplicates and writes through the repository; they never call institution parsers directly.
 
+`ParserEngine` has two entry points:
+
+- Sender-routed `parse(sender, body, receivedAt)`: the path above, used by live capture, the inbox import and the backup file import. Only the first parser whose sender pattern matches is asked.
+- Body-only `identifyByBody(body, receivedAt)`: for text that has no sender address. It runs every registered parser on the body, each called with the first of its own sender patterns, and accepts the result only when exactly one parser recognizes it (`Matched`). None gives `NoMatch`; two or more give `Ambiguous`, and the message is not accepted. It is used only by the manual share and paste intake (`PrepareManualEntryUseCase`), never by live capture or an import.
+
+Exception guard: in both entry points an exception thrown by a parser is treated as that parser not recognizing the message, exactly as if it had returned null, so one failing parser cannot crash live capture, an import or the manual intake. In the body-only path the other parsers are still asked. `CancellationException` is rethrown, and errors that are not exceptions are left alone. Nothing is logged and the exception is never passed on, because its message can contain message text.
+
+The guard is a last line of defence, not a licence to throw. A parser must return null for text it cannot read: amount and balance text goes through `parseAmountOrNull` (parser/core), which returns null instead of throwing when the text is not a number, and the parser then returns null for the whole message. `ParserFuzzTest` and `NumericTextCorruptionTest` call every parser directly, without the guard, and fail if one throws.
+
 ---
 
 ## 6. SMS Sender Reference
