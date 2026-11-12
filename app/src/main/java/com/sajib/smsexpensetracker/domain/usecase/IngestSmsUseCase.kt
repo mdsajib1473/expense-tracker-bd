@@ -2,6 +2,7 @@ package com.sajib.smsexpensetracker.domain.usecase
 
 import com.sajib.smsexpensetracker.data.repository.TransactionWriter
 import com.sajib.smsexpensetracker.domain.model.IngestResult
+import com.sajib.smsexpensetracker.domain.model.SmsLimits
 import com.sajib.smsexpensetracker.parser.core.ParserEngine
 import javax.inject.Inject
 
@@ -17,6 +18,9 @@ import javax.inject.Inject
  * logged and never returned, since it may contain an OTP or a PIN
  * (AGENT.md rule 12). This class does no logging at all; callers may log the
  * returned [IngestResult], which holds no body.
+ *
+ * A body longer than [SmsLimits.MAX_BODY_LENGTH] is unrecognized too, and is
+ * rejected before any parser runs.
  */
 class IngestSmsUseCase @Inject constructor(
     private val parserEngine: ParserEngine,
@@ -28,6 +32,7 @@ class IngestSmsUseCase @Inject constructor(
      * the SMS itself), and stores it if it is a new transaction.
      */
     suspend operator fun invoke(sender: String, body: String, receivedAt: Long): IngestResult {
+        if (body.length > SmsLimits.MAX_BODY_LENGTH) return IngestResult.Unrecognized
         val parsed = parserEngine.parse(sender, body, receivedAt) ?: return IngestResult.Unrecognized
         return if (writer.saveIfNew(parsed, receivedAt)) {
             IngestResult.Saved(parsed.institutionName)

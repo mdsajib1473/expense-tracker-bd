@@ -249,6 +249,12 @@ Features:
 - Full flavor: when Android no longer shows the SMS permission prompt, the onboarding step offers "Open app settings" instead.
 - A balance inquiry in the transaction list shows its label and balance with no plus or minus sign of its own.
 
+#### B3.2: body length cap
+
+- `IngestSmsUseCase` treats a body longer than `SmsLimits.MAX_BODY_LENGTH` (5000 characters) as unrecognized before any parser runs, so it is never parsed, stored or logged. This covers the live receiver, the inbox import and the backup file import. Reason: five of the six parsers take quadratic time on a very long crafted body (seconds at 160,000 characters), and a backup file can hold a body of any length.
+- The share and paste intake keeps its own stricter limit of 2000 characters and its `TooLong` result; a test checks that this limit never exceeds the cap.
+- The longest inbox body in the three local real exports is 204, 238 and 252 characters.
+
 #### Known limitations
 
 - Shared and pasted messages have no sender, so only formats that exactly one provider recognizes are accepted. A format two providers both recognize is rejected as ambiguous, and a format only recognizable by its sender cannot be added this way.
